@@ -1,6 +1,6 @@
 {
   "name": "todo",
-  "module": "index.ts",
+  "module": "src/index.js",
   "type": "module",
   "private": true,
   "devDependencies": {
