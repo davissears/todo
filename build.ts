@@ -1,0 +1,8 @@
+import { isAwaitExpression } from "typescript";
+
+await Bun.build({
+  entrypoints: ["./src/index.js"],
+  outdir: "./dist",
+  minify: true,
+  sourcemap: "external",
+});

@@ -6,6 +6,7 @@
       "name": "todo",
       "devDependencies": {
         "@types/bun": "latest",
+        "bun-types": "^1.3.6",
       },
       "peerDependencies": {
         "typescript": "^5",

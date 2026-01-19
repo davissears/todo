@@ -143,6 +143,8 @@ vite.config.ts.timestamp-*
 
 # Bun
 .bun/
+bun.lockb
 
 # Build output
 dist/
+GEMINI.md
