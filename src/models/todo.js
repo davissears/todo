@@ -13,14 +13,6 @@ export class Jot {
 		this.#title = title;
 	}
 
-	// NOTE: commented out during refactor
-	// startProject(title, description) {
-	// 	this.#title = title;
-	// 	this.#description = description;
-	// 	this.#projectId = Math.random().toString(36).substring(2, 9);
-	// 	this.#tier = "project";
-	// }
-
 	get title() {
 		return this.#title;
 	}
@@ -32,11 +24,17 @@ export class Jot {
 	toJSON() {
 		return {
 			title: this.#title,
+			//    if(priority) {
+			//      priority: this.priority,
+			// },
 			...this,
 		};
 	}
 
 	static fromJSON(data) {
-		return new Jot(data.title);
+		const jot = new Jot(data.title);
+		// restory properties
+		Object.assign(jot, data);
+		return jot;
 	}
 }
