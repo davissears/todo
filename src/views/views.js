@@ -1,3 +1,5 @@
 export default class View {
-  constructor() {}
+	constructor() {
+		console.log("View initialized");
+	}
 }
