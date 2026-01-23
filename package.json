@@ -14,7 +14,7 @@
 	"scripts": {
 		"dev": "bun run ./dev.ts",
 		"build": "bun ./build.ts",
-		"test:dx": "bun run ./run_dx_suite.ts",
-		"test:tui": "bun run tui_dx_tools/tui_runner.ts"
+		"test:dx": "bun run ./tests/run_dx_suite.ts",
+		"test:tui": "bun run tests/tui_dx_tools/tui_runner.ts"
 	}
 }

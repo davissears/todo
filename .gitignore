@@ -148,3 +148,7 @@ bun.lockb
 # Build output
 dist/
 GEMINI.md
+gemini.md
+
+# Tests
+tests/
