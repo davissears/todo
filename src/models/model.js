@@ -79,9 +79,10 @@ export default class Model {
     // app.model.projects[0]
     // app.model.createTodo('wipe', app.model.projects[0])
   }
-
+  // TODO: refactor Todo instantiation to store project id
+  // * then refactor `deleteTodo` to accpet JUST the Object
   // In src/models/model.js
-  deleteTodo(todoId, projectId) {
+  deleteTodo(todoId, project) {
     // get reference to the project object
     const project = this.projects.find((p) => p.id === projectId);
     if (project) {
