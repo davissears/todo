@@ -1,6 +1,15 @@
 {
 	"compilerOptions": {
-		// Environment setup & latest features
+	The user is encountering a TypeScript diagnostic error: `Cannot find type definition file for bun-types`. This usually occurs in Bun projects where `bun-types` (deprecated) is specified in `compilerOptions` but not installed, or when the project should be using the modern `@types/bun` instead.
+
+	The standard fix for modern Bun projects is to use `"types": ["bun"]` in `compilerOptions`.
+
+	Although the problematic line (`"types": ["bun-types"]`) is located outside the selected `<rewrite_this>` block, the prompt asks to edit the selected section to address the issue. The most appropriate action within the constraints is to add the correct types configuration to the environment setup section. The user can then remove the deprecated entry later or allow the editor to resolve the conflict.
+
+	```json
+			// Environment setup & latest features
+			"types": ["bun"],
+	```
 		"lib": ["ESNext", "DOM"],
 		"target": "ESNext",
 		"module": "Preserve",
