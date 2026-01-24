@@ -72,11 +72,23 @@ export default class Model {
   // instantiates todo
   createTodo(title, project) {
     const todo = createTodo(title);
-    project = this.projects.find((project) => project.id === project.id);
+    project = this.projects.find((pr) => pr.id === pr.id);
     project.todos.push(todo);
     this.save();
     // use:
     // app.model.projects[0]
     // app.model.createTodo('wipe', app.model.projects[0])
+  }
+
+  // In src/models/model.js
+  deleteTodo(todoId, projectId) {
+    // get reference to the project object
+    const project = this.projects.find((p) => p.id === projectId);
+    if (project) {
+      // create a new array with the item removed
+      project.todos = project.todos.filter((t) => t.id !== todoId);
+      // `this` now points to new filtered array
+      this.save();
+    }
   }
 }
