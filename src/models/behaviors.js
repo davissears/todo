@@ -70,4 +70,4 @@ const addDescription = (object) => {
 };
 
 
-export { addPriority };
+export { addPriority, addDescription };
