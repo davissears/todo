@@ -23,19 +23,15 @@ export default class Model {
   }
   // TODO: create rehydrate function. then:
   // TODO: refactor `load()` to call the rehydrate function
-
+  // FIX: current `load()` is effectively using a switch statement
+  // !: the current pattern will comprpomise extensibility
+  
   // load this instnace from storage
   load() {
     // `data` = `this instance of storage loaded`
     const data = this.storage.load();
     // if data exists
     if (data) {
-      // NOTE:
-      // * refactor conditional to read:
-      // *  if data exists
-      // *    project are items with a tier of `project`
-      // *    todo are items with a tier of `todo` etc
-
       // this instance of projects
       //  is map of all items loaded in storage
       this.projects = data.map((item) => {
@@ -70,10 +66,10 @@ export default class Model {
   }
 
   // instantiates todo
-  createTodo(title, project) {
+  createTodo(title, targetProject) {
     const todo = createTodo(title);
-    project = this.projects.find((pr) => pr.id === pr.id);
-    project.todos.push(todo);
+    project = this.projects.find((pr) => pr.id === targetProject.id);
+    targetProject.todos.push(todo);
     this.save();
     // use:
     // app.model.projects[0]
@@ -82,7 +78,7 @@ export default class Model {
   // TODO: refactor Todo instantiation to store project id
   // * then refactor `deleteTodo` to accpet JUST the Object
   // In src/models/model.js
-  deleteTodo(todoId, project) {
+  deleteTodo(todoId, projectId) {
     // get reference to the project object
     const project = this.projects.find((p) => p.id === projectId);
     if (project) {
