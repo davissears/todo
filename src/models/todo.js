@@ -22,18 +22,25 @@ export class Jot {
 	}
 
 	toJSON() {
+		// instantiate new object as return value
+		// to return
 		return {
+			// object key `title` has value of:
+			// this private instance of title
 			title: this.#title,
-			//    if(priority) {
-			//      priority: this.priority,
-			// },
+			// spread/copy all properties of:
+			// this instance into object
 			...this,
 		};
 	}
 
+	// this class has:
+	//  function that accepts jsonified objects
 	static fromJSON(data) {
+		// retrun value is: new instance of this class
 		const jot = new Jot(data.title);
-		// restory properties
+		// assign properties of jsonifies object:
+		//  to new instance
 		Object.assign(jot, data);
 		return jot;
 	}

@@ -1,4 +1,6 @@
+// @ts-nocheck
 export default class StorageService {
+	// each instance of storage will have a `key` property
 	constructor(key) {
 		this.key = key;
 	}
