@@ -65,6 +65,8 @@ export default class Model {
     const project = createProject(title);
     this.projects.push(project);
     this.save();
+    // use:
+    // app.model.projects[0]
   }
 
   // instantiates todo
@@ -73,5 +75,8 @@ export default class Model {
     project = this.projects.find((project) => project.id === project.id);
     project.todos.push(todo);
     this.save();
+    // use:
+    // app.model.projects[0]
+    // app.model.createTodo('wipe', app.model.projects[0])
   }
 }
