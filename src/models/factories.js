@@ -32,6 +32,7 @@ const createProject = (title) => {
 const createTodo = (title) => {
   const todo = new Jot(title);
   todo.id = crypto.randomUUID();
+  todo.tier = "todo";
   // attach behaviors
   addPriority(todo);
   return todo;

@@ -3,7 +3,8 @@ class StorageService {
   constructor(key) {
     this.key = key;
   }
-
+  
+  
   save(data) {
     try {
       // key=`this` instance: value=all data from this instanse

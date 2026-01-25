@@ -2,7 +2,14 @@
 // *  functions should:
 // *    accept an object
 // *    attach properties/methods to it
-
+// TODO: write addStatus
+// TODO: write addNote
+// TODO: write addChecklist
+// TODO: write addDueDate
+// TODO: write addDueTime
+// TODO: write addCheckItem
+console.log("log");
+//
 // composes `priority` property onto object
 const addPriority = (object) => {
   // private variable scoped to this specific object instance
@@ -68,6 +75,5 @@ const addDescription = (object) => {
     },
   });
 };
-
 
 export { addPriority, addDescription };

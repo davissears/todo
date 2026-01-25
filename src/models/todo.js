@@ -1,14 +1,10 @@
 export class Jot {
 	#title;
-	// #priority;
-	// #description;
 	// #dueDate;
 	// #dueTime;
 	// #note;
-	// #projectId;
-	// #orderId;
-	// specifies object as project, todo, checklist, or check-item
 	// #tier;
+	// specifies object as project, todo, checklist, or check-item
 	constructor(title) {
 		this.#title = title;
 	}

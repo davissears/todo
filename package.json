@@ -1,19 +1,20 @@
 {
-	"name": "todo",
-	"module": "src/index.js",
-	"type": "module",
-	"private": true,
-	"devDependencies": {
-		"@biomejs/biome": "^2.3.11",
-		"@types/bun": "latest"
-	},
-	"peerDependencies": {
-		"typescript": "^5"
-	},
-	"scripts": {
-		"dev": "bun run ./dev.ts",
-		"build": "bun ./build.ts",
-		"test:dx": "bun run ./tests/run_dx_suite.ts",
-		"test:tui": "bun run tests/tui_dx_tools/tui_runner.ts"
-	}
+  "name": "todo",
+  "module": "src/index.js",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.11",
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "scripts": {
+    "dev": "bun run ./dev.ts",
+    "build": "bun ./build.ts",
+    "test:dx": "bun run ./tests/run_dx_suite.ts",
+    "test:tui": "bun run tests/tui_dx_tools/tui_runner.ts",
+    "test:props": "bun test tests/props.test.js"
+  }
 }
