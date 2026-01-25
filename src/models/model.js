@@ -25,7 +25,7 @@ export default class Model {
   // TODO: refactor `load()` to call the rehydrate function
   // FIX: current `load()` is effectively using a switch statement
   // !: the current pattern will comprpomise extensibility
-  
+
   // load this instnace from storage
   load() {
     // `data` = `this instance of storage loaded`
@@ -78,13 +78,12 @@ export default class Model {
   // TODO: refactor Todo instantiation to store project id
   // * then refactor `deleteTodo` to accpet JUST the Object
   // In src/models/model.js
-  deleteTodo(todoId, projectId) {
-    // get reference to the project object
-    const project = this.projects.find((p) => p.id === projectId);
-    if (project) {
-      // create a new array with the item removed
-      project.todos = project.todos.filter((t) => t.id !== todoId);
-      // `this` now points to new filtered array
+  delete(project) {
+    // find project
+    const index = this.projects.findIndex((p) => p.id === project.id);
+    // safety check: if not found, index is -1
+    if (index !== -1) {
+      this.projects.splice(index, 1);
       this.save();
     }
   }
