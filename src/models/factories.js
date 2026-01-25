@@ -16,6 +16,8 @@ const createProject = (title) => {
   // identify object as a project
   //    gives project `tier` property with a value of project
   project.tier = "project";
+  // give project a group id for it and it's children
+  project.groupId = crypto.randomUUID();
   // give project a unique id
   project.id = crypto.randomUUID();
   // create arrays for todos
@@ -29,6 +31,7 @@ const createProject = (title) => {
 //  should push created object to `todos` array w/ matching project id.
 const createTodo = (title) => {
   const todo = new Jot(title);
+  todo.id = crypto.randomUUID();
   // attach behaviors
   addPriority(todo);
   return todo;

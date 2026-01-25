@@ -67,7 +67,7 @@ export default class Model {
 
   deleteProject(project) {
     // find project
-    const index = this.projects.findIndex((p) => p.id === project.id);
+    const index = this.projects.findIndex((p) => p.groupId === project.groupId);
     // safety check: if not found, index is -1
     if (index !== -1) {
       this.projects.splice(index, 1);
@@ -75,13 +75,13 @@ export default class Model {
     }
   }
 
-  // TODO: refactor createTodo as a decorator function in behaviors.js
-  // TODO: refactor Todo instantiation to store project id
   // instantiates todo
   createTodo(title, targetProject) {
     const todo = createTodo(title);
-    const project = this.projects.find((pr) => pr.id === targetProject.id);
-    todo.id = project.id;
+    const project = this.projects.find(
+      (pr) => pr.groupId === targetProject.groupId,
+    );
+    todo.groupId = project.groupId;
     targetProject.todos.push(todo);
     this.save();
     // use:
@@ -96,7 +96,7 @@ export default class Model {
       return;
     }
     // follows same pattern as `deleteProject()`
-    const index = project.todos.findIndex((t) => t.id === todo.id);
+    const index = project.todos.findIndex((t) => t.groupId === todo.groupId);
     if (index !== -1) {
       project.todos.splice(index, 1);
       this.save();
