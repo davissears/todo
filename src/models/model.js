@@ -65,25 +65,40 @@ export default class Model {
     // app.model.projects[0]
   }
 
+  deleteProject(project) {
+    // find project
+    const index = this.projects.findIndex((p) => p.id === project.id);
+    // safety check: if not found, index is -1
+    if (index !== -1) {
+      this.projects.splice(index, 1);
+      this.save();
+    }
+  }
+
+  // TODO: refactor createTodo as a decorator function in behaviors.js
+  // TODO: refactor Todo instantiation to store project id
   // instantiates todo
   createTodo(title, targetProject) {
     const todo = createTodo(title);
-    project = this.projects.find((pr) => pr.id === targetProject.id);
+    const project = this.projects.find((pr) => pr.id === targetProject.id);
+    todo.id = project.id;
     targetProject.todos.push(todo);
     this.save();
     // use:
     // app.model.projects[0]
     // app.model.createTodo('wipe', app.model.projects[0])
   }
-  // TODO: refactor Todo instantiation to store project id
-  // * then refactor `deleteTodo` to accpet JUST the Object
-  // In src/models/model.js
-  delete(project) {
-    // find project
-    const index = this.projects.findIndex((p) => p.id === project.id);
-    // safety check: if not found, index is -1
+
+  deleteTodo(todo, project) {
+    // ensure target project exists
+    if (!project || !project.todos) {
+      console.error("specified project or todos array in undefined");
+      return;
+    }
+    // follows same pattern as `deleteProject()`
+    const index = project.todos.findIndex((t) => t.id === todo.id);
     if (index !== -1) {
-      this.projects.splice(index, 1);
+      project.todos.splice(index, 1);
       this.save();
     }
   }
