@@ -16,5 +16,8 @@
     "test:dx": "bun run ./tests/run_dx_suite.ts",
     "test:tui": "bun run tests/tui_dx_tools/tui_runner.ts",
     "test:props": "bun test tests/props.test.js"
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0"
   }
 }
