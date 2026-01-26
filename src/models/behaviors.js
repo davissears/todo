@@ -76,4 +76,22 @@ const addDescription = (object) => {
   });
 };
 
-export { addPriority, addDescription };
+const addStatus = (object) => {
+  let _status = "";
+  let reason = "blocked";
+  if (_status === "blocked") {
+    const _statusBlocked = "blocked" + "by" + `${reason}`;
+  } else if (
+    _status !== "complete" ||
+    _status !== "spotlight" ||
+    _status !== "active" ||
+    _status !== "inactive" ||
+    _status !== _statusBlocked
+  ) {
+    console.error("invalid status");
+    return;
+  } else {
+    return;
+  }
+};
+export { addPriority, addDescription, addStatus };
