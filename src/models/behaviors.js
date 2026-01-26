@@ -106,7 +106,7 @@ const addStatus = (object) => {
     },
     addStatus: {
       value: function (string) {
-        this.description = string;
+        this.status = string;
       },
       writable: true,
       enumerable: false,
@@ -115,6 +115,28 @@ const addStatus = (object) => {
   });
 };
 
-
+const addNote = (object) => {
+  let _note = "";
+  Object.defineProperties(object, {
+    note: {
+      get() {
+        return _note;
+      },
+      set(string) {
+        _note = string;
+      },
+      enumerable: true,
+      configurable: true,
+    },
+    addStatus: {
+      value: function (string) {
+        this.note = string;
+      },
+      writeable: true,
+      enumerable: false,
+      configurable: true,
+    },
+  });
+};
 
 export { addPriority, addDescription, addStatus, addNote };
