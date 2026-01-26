@@ -93,5 +93,28 @@ const addStatus = (object) => {
   } else {
     return;
   }
+  Object.defineProperties(object, {
+    status: {
+      get() {
+        return _status;
+      },
+      set(string) {
+        _status = string;
+      },
+      enumerable: true,
+      configurable: true,
+    },
+    addStatus: {
+      value: function (string) {
+        this.description = string;
+      },
+      writable: true,
+      enumerable: false,
+      configurable: true,
+    },
+  });
 };
-export { addPriority, addDescription, addStatus };
+
+
+
+export { addPriority, addDescription, addStatus, addNote };
