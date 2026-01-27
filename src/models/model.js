@@ -1,7 +1,7 @@
 // connects to services for persistance
 import StorageService from "../services/storage.js";
 // connect to factories for access to object instantiation
-import { createProject, createTodo } from "./factories.js";
+import { createProject, createTodo, createChecklist } from "./factories.js";
 // import { Jot } from "./todo.js";
 
 // `Model` class acts as entrypoint for all modules
@@ -101,6 +101,16 @@ export default class Model {
       project.todos.splice(index, 1);
       this.save();
     }
+  }
+
+  createChecklist(title, targetProject) {
+    const checklist = createChecklist(title);
+    const project = this.projects.find(
+      (pr) => pr.groupId === targetProject.groupId,
+    );
+    checklist.groupId = project.groupId;
+    targetProject.todos.push(checklist);
+    this.save()
   }
 }
 // TODO: import behaviors
