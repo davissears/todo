@@ -11,6 +11,7 @@ import {
   addStatus,
   addNote,
   addDueDate,
+  addDueTime,
 } from "./behaviors.js";
 // import class for object instantiation
 import { Jot } from "./todo.js";
@@ -34,6 +35,7 @@ const createProject = (title) => {
   addStatus(project);
   addNote(project);
   addDueDate(project);
+  addDueTime(project);
   return project;
 };
 

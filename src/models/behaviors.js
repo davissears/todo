@@ -173,4 +173,46 @@ const addDueDate = (object) => {
     },
   });
 };
-export { addPriority, addDescription, addStatus, addNote, addDueDate };
+
+const addDueTime = (object) => {
+  let _dueTime = format(new Date(), "HH:mm a");
+  const _dueDate = object.dueDate;
+  Object.defineProperties(object, {
+    dueTime: {
+      get() {
+        return _dueTime;
+      },
+      set() {
+        let parsedTime = parse(string, "HH:mm a");
+
+        if (!isValid(parsedTime)) {
+          parsedTime = new Date(string);
+        }
+
+        if (isValid(parsedTime)) {
+          _dueTime = format(parsedTime, "HH:mm a");
+        } else {
+          console.error("invalid time format please use HH:mm AM/PM");
+        }
+      },
+      enumerable: true,
+      configurable: true,
+    },
+    addDueTime: {
+      value: function (string) {
+        this.dueTime = string;
+      },
+      writable: true,
+      enumerable: false,
+      configurable: true,
+    },
+  });
+};
+export {
+  addPriority,
+  addDescription,
+  addStatus,
+  addNote,
+  addDueDate,
+  addDueTime,
+};
