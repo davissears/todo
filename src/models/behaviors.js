@@ -1,3 +1,4 @@
+import { format, parse, isValid, startOfDay } from "date-fns";
 // INFO: define standalone functions
 // *  functions should:
 // *    accept an object
@@ -8,7 +9,6 @@
 // TODO: write addDueDate
 // TODO: write addDueTime
 // TODO: write addCheckItem
-console.log("log");
 //
 // composes `priority` property onto object
 const addPriority = (object) => {
@@ -77,29 +77,28 @@ const addDescription = (object) => {
 };
 
 const addStatus = (object) => {
-  let _status = "";
-  let reason = "blocked";
-  if (_status === "blocked") {
-    const _statusBlocked = "blocked" + "by" + `${reason}`;
-  } else if (
-    _status !== "complete" ||
-    _status !== "spotlight" ||
-    _status !== "active" ||
-    _status !== "inactive" ||
-    _status !== _statusBlocked
-  ) {
-    console.error("invalid status");
-    return;
-  } else {
-    return;
-  }
+  let _status = "active";
+
   Object.defineProperties(object, {
     status: {
       get() {
         return _status;
       },
       set(string) {
-        _status = string;
+        const isBlocked = string.startsWith("blocked:");
+        const validStatuses = [
+          "",
+          "complete",
+          "spotlight",
+          "active",
+          "inactive",
+        ];
+
+        if (validStatuses.includes(string) || isBlocked) {
+          _status = string;
+        } else {
+          console.error(`invalid status: ${string}`);
+        }
       },
       enumerable: true,
       configurable: true,
@@ -128,15 +127,46 @@ const addNote = (object) => {
       enumerable: true,
       configurable: true,
     },
-    addStatus: {
+    addNote: {
       value: function (string) {
         this.note = string;
       },
-      writeable: true,
+      writable: true,
       enumerable: false,
       configurable: true,
     },
   });
 };
 
-export { addPriority, addDescription, addStatus, addNote };
+const addDueDate = (object) => {
+  let _dueDate = new Date();
+  Object.defineProperties(object, {
+    dueDate: {
+      get() {
+        return _dueDate;
+      },
+      set(string) {
+        _dueDate = format(new Date(string), "dd/MM/yyyy");
+      },
+      enumerable: true,
+      configurable: true,
+    },
+    addDueDate: {
+      value: function (string) {
+        const parsedString = parse(string, "dd/MM/yyyy", new Date());
+        console.log(parsedString);
+        // validate string
+        if (!isValid(parsedString)) {
+          console.error("invalid date format: please use dd/mm/yyyy");
+        }
+        // set to start of day
+        const sodDate = startOfDay(parsedString);
+        this.dueDate = format(new Date(sodDate), "dd/MM/yyyy");
+      },
+      writable: true,
+      enumerable: false,
+      configurable: true,
+    },
+  });
+};
+export { addPriority, addDescription, addStatus, addNote, addDueDate };
