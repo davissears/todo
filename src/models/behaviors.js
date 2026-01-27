@@ -174,23 +174,24 @@ const addDueDate = (object) => {
   });
 };
 
+
 const addDueTime = (object) => {
-  let _dueTime = format(new Date(), "HH:mm a");
+  let _dueTime = format(new Date(), "hh:mm a");
   const _dueDate = object.dueDate;
   Object.defineProperties(object, {
     dueTime: {
       get() {
         return _dueTime;
       },
-      set() {
-        let parsedTime = parse(string, "HH:mm a");
+      set(string) {
+        let parsedTime = parse(string, "hh:mm a", new Date());
 
         if (!isValid(parsedTime)) {
           parsedTime = new Date(string);
         }
 
         if (isValid(parsedTime)) {
-          _dueTime = format(parsedTime, "HH:mm a");
+          _dueTime = format(parsedTime, "hh:mm a");
         } else {
           console.error("invalid time format please use HH:mm AM/PM");
         }

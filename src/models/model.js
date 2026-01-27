@@ -110,7 +110,6 @@ export default class Model {
     );
     checklist.groupId = project.groupId;
     targetProject.todos.push(checklist);
-    this.save()
+    this.save();
   }
 }
-// TODO: import behaviors
