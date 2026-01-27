@@ -51,8 +51,22 @@ const createTodo = (title) => {
   addStatus(todo);
   addNote(todo);
   addDueDate(todo);
+  addDueTime(todo);
   return todo;
 };
 
+const createChecklist = (title) => {
+  const checklist = new Jot(title);
+  checklist.id = crypto.randomUUID();
+  checklist.tier = "checklist";
+  addPriority(checklist);
+  addDescription(checklist);
+  addStatus(checklist);
+  addNote(checklist);
+  addDueDate(checklist);
+  addDueTime(checklist);
+  return checklist;
+};
+
 // TODO: write addDescription
-export { createProject, createTodo };
+export { createProject, createTodo, createChecklist };
