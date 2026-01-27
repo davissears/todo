@@ -5,7 +5,13 @@
 // *    return the object
 
 // import behaviors to compose properties into created projects
-import { addPriority, addDescription } from "./behaviors.js";
+import {
+  addPriority,
+  addDescription,
+  addStatus,
+  addNote,
+  addDueDate,
+} from "./behaviors.js";
 // import class for object instantiation
 import { Jot } from "./todo.js";
 
@@ -24,6 +30,10 @@ const createProject = (title) => {
   project.todos = [];
   // compose priority property in object
   addPriority(project);
+  addDescription(project);
+  addStatus(project);
+  addNote(project);
+  addDueDate(project);
   return project;
 };
 
@@ -35,6 +45,10 @@ const createTodo = (title) => {
   todo.tier = "todo";
   // attach behaviors
   addPriority(todo);
+  addDescription(todo);
+  addStatus(todo);
+  addNote(todo);
+  addDueDate(todo);
   return todo;
 };
 

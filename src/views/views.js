@@ -3,3 +3,4 @@ export default class View {
 		console.log("View initialized");
 	}
 }
+ 
