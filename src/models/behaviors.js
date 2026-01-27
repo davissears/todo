@@ -139,29 +139,33 @@ const addNote = (object) => {
 };
 
 const addDueDate = (object) => {
-  let _dueDate = new Date();
+  let _dueDate = format(new Date(), "MM/dd/yyyy");
   Object.defineProperties(object, {
     dueDate: {
       get() {
         return _dueDate;
       },
       set(string) {
-        _dueDate = format(new Date(string), "dd/MM/yyyy");
+        // try to parse as dd/mm/yyyy
+        let parsedDate = parse(string, "MM/dd/yyyy", new Date());
+
+        // if invalid, try to parse as standard date
+        if (!isValid(parsedDate)) {
+          parsedDate = new Date(string);
+        }
+
+        if (isValid(parsedDate)) {
+          _dueDate = format(parsedDate, "MM/dd/yyyy");
+        } else {
+          console.error("invalid date format: please use dd/mm/yyyy");
+        }
       },
       enumerable: true,
       configurable: true,
     },
     addDueDate: {
       value: function (string) {
-        const parsedString = parse(string, "dd/MM/yyyy", new Date());
-        console.log(parsedString);
-        // validate string
-        if (!isValid(parsedString)) {
-          console.error("invalid date format: please use dd/mm/yyyy");
-        }
-        // set to start of day
-        const sodDate = startOfDay(parsedString);
-        this.dueDate = format(new Date(sodDate), "dd/MM/yyyy");
+        this.dueDate = string;
       },
       writable: true,
       enumerable: false,
