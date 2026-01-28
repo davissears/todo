@@ -57,6 +57,7 @@ const createTodo = (title) => {
 
 const createChecklist = (title) => {
   const checklist = new Jot(title);
+  checklist.checkitems = [];
   checklist.id = crypto.randomUUID();
   checklist.tier = "checklist";
   addPriority(checklist);

@@ -92,6 +92,7 @@ const addStatus = (object) => {
           "spotlight",
           "active",
           "inactive",
+          "pending",
         ];
 
         if (validStatuses.includes(string) || isBlocked) {
