@@ -39,8 +39,6 @@ const createProject = (title) => {
   return project;
 };
 
-// TODO: refactor createTodo:
-//  should push created object to `todos` array w/ matching project id.
 const createTodo = (title) => {
   const todo = new Jot(title);
   todo.id = crypto.randomUUID();
@@ -67,6 +65,18 @@ const createChecklist = (title) => {
   addDueDate(checklist);
   addDueTime(checklist);
   return checklist;
+};
+
+const createCheckItem = (title) => {
+  const checkItem = new Jot(title);
+  checkItem.id = crypto.randomUUID();
+  checkItem.tier = "checkItem";
+  addDescription(checkItem);
+  addStatus(checkItem);
+  addNote(checkItem);
+  addDueDate(checkItem);
+  addDueTime(checkItem);
+  return checkItem;
 };
 
 // TODO: write addDescription
