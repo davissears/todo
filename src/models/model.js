@@ -118,13 +118,36 @@ export default class Model {
     this.save();
   }
 
-  // FIX: checklist definition needs to find the checklist via `listId`
   createCheckItem(title, targetList) {
     const checkItem = createCheckItem(title);
-    const checklist = this.todos.find((ch) => ch.listId === targetList.listId);
-    listItem.listId = checklist.listId;
-    targetList.checkItems.push(checkItem);
-    this.save();
+    const project = this.projects.find(
+      (pr) => pr.groupId === targetList.groupId,
+    );
+
+    if (project) {
+      const checklist = project.todos.find(
+        (ch) => ch.listId === targetList.listId,
+      );
+
+      // validation
+      // if checklist exists
+      if (checklist) {
+        // ensure the array exists before pushing
+        // if array doesn't exist
+        if (!checklist.checkItems) {
+          checklist.checkItems = [];
+        }
+        // add `listId` for checklist grouping
+        checkItem.listId = checklist.listId;
+        checklist.checkItems.push(checkItem);
+        this.save();
+        // error message if checklist not found
+      } else {
+        console.error("Checklist not found in project");
+      }
+      // error message if project not found
+    } else {
+      console.error("Project not found");
+    }
   }
-  // TODO: createCheckItem goes here.
 }

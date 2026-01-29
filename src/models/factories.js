@@ -55,8 +55,9 @@ const createTodo = (title) => {
 
 const createChecklist = (title) => {
   const checklist = new Jot(title);
-  checklist.checkitems = [];
+  checklist.checkItems = [];
   checklist.id = crypto.randomUUID();
+  checklist.listId = crypto.randomUUID();
   checklist.tier = "checklist";
   addPriority(checklist);
   addDescription(checklist);
@@ -80,4 +81,4 @@ const createCheckItem = (title) => {
 };
 
 // TODO: write addDescription
-export { createProject, createTodo, createChecklist };
+export { createProject, createTodo, createChecklist, createCheckItem };
