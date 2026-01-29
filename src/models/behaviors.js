@@ -3,11 +3,6 @@ import { format, parse, isValid, startOfDay } from "date-fns";
 // *  functions should:
 // *    accept an object
 // *    attach properties/methods to it
-// TODO: write addStatus
-// TODO: write addNote
-// TODO: write addChecklist
-// TODO: write addDueDate
-// TODO: write addDueTime
 // TODO: write addCheckItem
 //
 // composes `priority` property onto object
@@ -175,7 +170,6 @@ const addDueDate = (object) => {
   });
 };
 
-
 const addDueTime = (object) => {
   let _dueTime = format(new Date(), "hh:mm a");
   const _dueDate = object.dueDate;
@@ -210,6 +204,9 @@ const addDueTime = (object) => {
     },
   });
 };
+
+// addCheckItem here
+
 export {
   addPriority,
   addDescription,
