@@ -16,7 +16,7 @@ export default class Header {
     this.logoContainer = document.createElement("div");
 
     // append()
-    this.root.append(this.element);
+    // this.root.append(this.element);
     this.element.append(this.headerContainer);
     this.headerContainer.append(this.logoContainer);
     this.logoContainer.append(this.logo);

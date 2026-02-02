@@ -1,15 +1,14 @@
 import Header from "./components/header.js";
 
 export default class Layout {
-  constructor() {
-    // this.root = rootElement;
-
-    this.root = document.body;
+  constructor(rootElement) {
+    this.root = rootElement;
 
     if (root) {
       const headerTag = document.createElement("header");
       root.append(headerTag);
       const header = new Header(headerTag);
+      headerTag.append(header.element);
     }
     // init components
     // this.header = new Header();
