@@ -4,13 +4,26 @@ export default class View {
     // root
     this.app = this.getElement("#root");
 
-    // title / header
-    this.title = this.createElement("h1");
-    this.title.textContent = "Jot";
-    
+    // header
+    this.header = this.createElement("header");
+    this.header.className = "header";
+    // header-Container
+    this.headerContainer = this.createElement("div");
+    this.headerContainer.className = "header-container";
+    // title
+    this.logo = this.createElement("h1");
+    this.logo.textContent = "Jot";
+    // logo-Container
+    this.logoContainer = this.createElement("div");
+
+    // append()
+    this.app.append(this.header);
+    this.header.append(this.headerContainer);
+    this.headerContainer.append(this.logoContainer);
+    this.logoContainer.append(this.logo);
     // TODO: Other element conventions fo here.
   }
-  
+
   // create
   createElement(tag, className) {
     const element = document.createElement(tag);
