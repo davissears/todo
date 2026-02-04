@@ -3,9 +3,9 @@ import { format, parse, isValid, startOfDay } from "date-fns";
 // *  functions should:
 // *    accept an object
 // *    attach properties/methods to it
-// TODO: write addCheckItem
-//
-// composes `priority` property onto object
+// 
+// NOTE:  `behaviors.js` may make more sense as `decorators.js`
+// decorates `priority` property onto object
 const addPriority = (object) => {
   // private variable scoped to this specific object instance
   let _priority = "Normal"; // property value is `normal` unless specified
@@ -40,10 +40,9 @@ const addPriority = (object) => {
   });
 
   return object;
-
-  // call example: myTodo.addPriority("Low");
 };
 
+// description decorator
 const addDescription = (object) => {
   let _description = "";
 
@@ -71,6 +70,7 @@ const addDescription = (object) => {
   });
 };
 
+// status decorator
 const addStatus = (object) => {
   let _status = "active";
 
@@ -110,6 +110,7 @@ const addStatus = (object) => {
   });
 };
 
+// note property decorator
 const addNote = (object) => {
   let _note = "";
   Object.defineProperties(object, {
@@ -134,6 +135,7 @@ const addNote = (object) => {
   });
 };
 
+// dueDate property decorator
 const addDueDate = (object) => {
   let _dueDate = format(new Date(), "MM/dd/yyyy");
   Object.defineProperties(object, {
@@ -170,6 +172,7 @@ const addDueDate = (object) => {
   });
 };
 
+// dueTime decorator
 const addDueTime = (object) => {
   let _dueTime = format(new Date(), "hh:mm a");
   const _dueDate = object.dueDate;

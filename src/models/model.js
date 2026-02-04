@@ -17,6 +17,7 @@ export default class Model {
     // instantiates local storage
     this.storage = new StorageService("todo-app-data");
     // load this instance
+    // TODO: create gaurd clause around loading
     this.load();
   }
   

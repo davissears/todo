@@ -69,6 +69,7 @@ const createChecklist = (title) => {
 };
 
 const createCheckItem = (title) => {
+  // return new CheckItem(title0)
   const checkItem = new Jot(title);
   checkItem.id = crypto.randomUUID();
   checkItem.tier = "checkItem";
@@ -77,6 +78,7 @@ const createCheckItem = (title) => {
   addNote(checkItem);
   addDueDate(checkItem);
   addDueTime(checkItem);
+  checkItem.
   return checkItem;
 };
 

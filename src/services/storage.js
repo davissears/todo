@@ -5,6 +5,7 @@ class StorageService {
   }
   
   
+      //NOTE: serialize
   save(data) {
     try {
       // key=`this` instance: value=all data from this instanse
@@ -15,6 +16,7 @@ class StorageService {
     }
   }
 
+  // NOTE: deserialize
   load() {
     try {
       // get `this` data from localStorage
