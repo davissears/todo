@@ -1,43 +1,22 @@
 export class Jot {
-	#title;
-	// #dueDate;
-	// #dueTime;
-	// #note;
-	// #tier;
-	// specifies object as project, todo, checklist, or check-item
-	constructor(title) {
-		this.#title = title;
-	}
+  #id = crypto.randomUUID();
+  #tier = "";
+  constructor(tier, title) {
+    this.title = title;
+  }
+  get id() {
+    return this.#id;
+  }
 
-	get title() {
-		return this.#title;
-	}
-
-	set title(title) {
-		this.#title = title;
-	}
-
-	toJSON() {
-		// instantiate new object as return value
-		// to return
-		return {
-			// object key `title` has value of:
-			// this private instance of title
-			title: this.#title,
-			// spread/copy all properties of:
-			// this instance into object
-			...this,
-		};
-	}
-
-	// this class has:
-	//  function that accepts jsonified objects
-	static fromJSON(data) {
-		// retrun value is: new instance of this class
-		const jot = new Jot(data.title);
-		// assign properties of jsonifies object:
-		//  to new instance
-		Object.assign(jot, data);
-		return jot;
-	}
+  // get priority() {
+  //   return this.priority;
+  // }
 }
+// NOTE: testing
+// object should be extensible to all other like objects
+const sampleItem = new Jot("sample", "Walk dog");
+console.log("new jot", sampleItem);
+// test:pass
+// sampleItem.id = "hello";
+// console.log('id expected to not be "hello" ', sampleItem, sampleItem.id);
+sampleItem.tier = "project";
