@@ -3,6 +3,7 @@ export class Jot {
   #tier = "";
   #description;
   #status;
+  #note;
   constructor(tier, title) {
     this.tier = tier;
     this.title = title;
@@ -41,23 +42,23 @@ export class Jot {
       throw new Error(`invalid jot status value: ${status}`);
     }
   }
+
+  get note() {
+    return this.#note;
+  }
+
+  set note(note) {
+    return (this.#note = note);
+  }
 }
 // NOTE: testing
 // TODO: delete testing before merging
 // object should be extensible to all other like objects
-const sampleItem = new Jot("TODO", "Walk dog");
-//
-// !: status tests
-console.log(sampleItem.status); // should return 'undefined'
-sampleItem.status = "ACTIVE";
-console.log("status expected to be: ACTIVE", sampleItem, sampleItem.status);
-// sampleItem.status = "ACTIV"; //should cause throw
-// console.log("status expected to be: ACTIVE", sampleItem, sampleItem.status);
-// sampleItem.status = "active"; //should cause throw
-// sampleItem.status = "COMP LETE"; //should cause throw
 
-sampleItem.status = "COMPLETE";
-console.log("status expected to be: 'COMPLETE'", sampleItem, sampleItem.status);
+const sampleItem = new Jot("TODO", "Walk dog");
+console.log(sampleItem, sampleItem.note); //note should = undefined
+sampleItem.note = "remember to bring the lead";
+console.log(sampleItem, sampleItem.note); // note should = 'remember to ...'
 //
 //
 //
@@ -78,9 +79,7 @@ console.log("status expected to be: 'COMPLETE'", sampleItem, sampleItem.status);
 //
 //
 //
-//
-//
-//
+
 //
 // !: test tier
 // console.log(`tier expected to be: "TODO"`, sampleItem, sampleItem.tier);
@@ -101,4 +100,14 @@ console.log("status expected to be: 'COMPLETE'", sampleItem, sampleItem.status);
 //   `description expected to be: "walk, bring dog and treats"`,
 //   sampleItem,
 //   sampleItem.description,
+// // !: status tests
+// console.log(sampleItem.status); // should return 'undefined'
+// sampleItem.status = "ACTIVE";
+// console.log("status expected to be: ACTIVE", sampleItem, sampleItem.status);
+// // sampleItem.status = "ACTIV"; //should cause throw
+// // console.log("status expected to be: ACTIVE", sampleItem, sampleItem.status);
+// // sampleItem.status = "active"; //should cause throw
+// // sampleItem.status = "COMP LETE"; //should cause throw
 // );
+// sampleItem.status = "COMPLETE";
+// console.log("status expected to be: 'COMPLETE'", sampleItem, sampleItem.status);
