@@ -10,8 +10,5 @@ export default class Note {
     return (this.#note = note);
   }
 }
+ // TEST
 
-const sample = new Note("this is a note");
-console.log(sample, sample.note); //  ! PASS
-sample.note = "this is a different note";
-console.log(sample, sample.note); //  ! PASS
