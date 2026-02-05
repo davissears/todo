@@ -4,6 +4,7 @@ export class Jot {
   #description;
   #status;
   #note;
+  #dueDateTime;
   constructor(tier, title) {
     this.tier = tier;
     this.title = title;
@@ -46,20 +47,33 @@ export class Jot {
   get note() {
     return this.#note;
   }
-
   set note(note) {
     return (this.#note = note);
+  }
+
+  get dueDateTime() {
+    return new Date(this.#dueDateTime);
+  }
+
+  set dueDateTime(date) {
+    return (this.#dueDateTime = new Date(date).toISOString());
   }
 }
 // NOTE: testing
 // TODO: delete testing before merging
 // object should be extensible to all other like objects
 
-const sampleItem = new Jot("TODO", "Walk dog");
-console.log(sampleItem, sampleItem.note); //note should = undefined
-sampleItem.note = "remember to bring the lead";
-console.log(sampleItem, sampleItem.note); // note should = 'remember to ...'
-//
+// const sampleItem = new Jot("TODO", "Walk dog");
+// const sampleDate = new Date("2030-01-14T21:52:03.392Z").toISOString();
+// console.log(sampleItem, sampleDate);
+// // set sampleItem dueDateTime
+// sampleItem.dueDateTime = sampleDate;
+// console.log(sampleItem, sampleItem.dueDateTime);
+// console.log(
+//   sampleItem.dueDateTime.getMonth(),
+//   sampleItem.dueDateTime.getDate(),
+//   sampleItem.dueDateTime.getFullYear(),
+// );
 //
 //
 //
@@ -80,6 +94,10 @@ console.log(sampleItem, sampleItem.note); // note should = 'remember to ...'
 //
 //
 
+// !: note tests
+// console.log(sampleItem, sampleItem.note); //note should = undefined
+// sampleItem.note = "remember to bring the lead";
+// console.log(sampleItem, sampleItem.note); // note should = 'remember to ...'
 //
 // !: test tier
 // console.log(`tier expected to be: "TODO"`, sampleItem, sampleItem.tier);
