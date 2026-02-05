@@ -1,4 +1,4 @@
-export class Jot {
+export default class Jot {
   #id = crypto.randomUUID();
   #tier = "";
   #description;
@@ -9,6 +9,7 @@ export class Jot {
     this.tier = tier;
     this.title = title;
   }
+
   get id() {
     return this.#id;
   }
@@ -44,6 +45,7 @@ export class Jot {
     }
   }
 
+  // TODO: move `note` prop to `Note` class
   get note() {
     return this.#note;
   }

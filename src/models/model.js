@@ -7,7 +7,7 @@ import {
   createChecklist,
   createCheckItem,
 } from "./factories.js";
-// import { Jot } from "./todo.js";
+// import { Jot } from "./jot.js";
 
 // `Model` class acts as entrypoint for all modules
 export default class Model {
@@ -20,10 +20,7 @@ export default class Model {
     // TODO: create gaurd clause around loading
     this.load();
   }
-  
-  
-  
-  
+
   // save this instance
   save() {
     // this instance of project is saved
