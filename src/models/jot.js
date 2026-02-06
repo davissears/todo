@@ -1,4 +1,5 @@
 export default class Jot {
+  #title;
   #id = crypto.randomUUID();
   #tier = "";
   #description;
@@ -8,6 +9,13 @@ export default class Jot {
   constructor(tier, title) {
     this.tier = tier;
     this.title = title;
+  }
+
+  get title() {
+    return this.#title;
+  }
+  set title(title) {
+    return (this.#title = title);
   }
 
   get id() {
@@ -43,14 +51,6 @@ export default class Jot {
     } else {
       throw new Error(`invalid jot status value: ${status}`);
     }
-  }
-
-  // TODO: move `note` prop to `Note` class
-  get note() {
-    return this.#note;
-  }
-  set note(note) {
-    return (this.#note = note);
   }
 
   get dueDateTime() {
