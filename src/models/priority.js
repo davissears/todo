@@ -21,8 +21,3 @@ export default class Priority {
     }
   }
 }
-// TEST
-const sample = new Priority("HIGH"); // ! PASS
-// sample.priority = "nONE"; // ! PASS: should throw
-sample.priority = 'NONE' // ! PASS
-console.log(sample, sample.priority);

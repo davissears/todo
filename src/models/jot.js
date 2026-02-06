@@ -1,10 +1,10 @@
 export default class Jot {
   #title;
   #id = crypto.randomUUID();
+  #groupId = crypto.randomUUID();
   #tier = "";
   #description;
   #status;
-  #note;
   #dueDateTime;
   constructor(tier, title) {
     this.tier = tier;
@@ -20,6 +20,10 @@ export default class Jot {
 
   get id() {
     return this.#id;
+  }
+
+  get groupId() {
+    return this.#groupId;
   }
 
   get tier() {
@@ -61,3 +65,6 @@ export default class Jot {
     return (this.#dueDateTime = new Date(date).toISOString());
   }
 }
+// TEST
+const sample = new Jot("PROJECT", "this is a project");
+console.log(sample, sample.id, sample.groupId);

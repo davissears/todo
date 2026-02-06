@@ -1,7 +1,9 @@
 export default class Note {
   #note;
-  constructor(note) {
+  #groupId;
+  constructor(note, groupId) {
     this.note = note;
+    this.#groupId = groupId;
   }
   get note() {
     return this.#note;
@@ -9,6 +11,8 @@ export default class Note {
   set note(note) {
     return (this.#note = note);
   }
+  get groupId() {
+    return this.#groupId;
+  }
 }
- // TEST
-
+// TEST
