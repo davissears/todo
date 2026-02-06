@@ -2,17 +2,26 @@ import Project from "./project";
 import Note from "./note";
 
 export default class Todo extends Project {
+  #note;
   constructor(title) {
     super(title);
     this.tier = "TODO";
   }
 
   setNote(value) {
-    if (this.note) {
-      return (this.note.note = value);
-    } else if (!sample.note) {
-      return (this.note = new Note(value, this.groupId));
+    if (this.#note) {
+      return (this.#note.note = value);
+    } else if (!this.note) {
+      return (this.#note = new Note(value, this.groupId));
     }
+  }
+
+  get note() {
+    return this.#note;
+  }
+
+  set note(value) {
+    return this.setNote(value);
   }
 
   setPriority(value) {
@@ -32,11 +41,12 @@ console.log(
   "sample note note::1:",
   sample.note.note,
 );
-// FIX: add gaurdrails?: calling `sample.note = 'any string'` breaks the method.
+
 // ! `sample.note` accesses the `Note` object that `sample` owns.
 // ! `sample.note.note` accesses the `note` property of the `Note` object
-sample.note = "this is a different note"; //
-// sample.setNote("!!!! this is a very different note !!!!");
+sample.note = "this is a different note"; // this should throw
+console.log("xxxxxxx", sample.note, "!!!!!!!", sample.note.note);
+sample.setNote("!!!! this is a very different note !!!!");
 console.log(
   "sample::2:",
   sample,
