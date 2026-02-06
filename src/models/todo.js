@@ -1,31 +1,10 @@
 import Project from "./project";
-import Note from "./note";
+// import Note from "./note";
 
 export default class Todo extends Project {
-  #note;
   constructor(title) {
     super(title);
     this.tier = "TODO";
-  }
-
-  setNote(value) {
-    if (this.#note) {
-      return (this.#note.note = value);
-    } else if (!this.note) {
-      return (this.#note = new Note(value, this.groupId));
-    }
-  }
-
-  get note() {
-    return this.#note;
-  }
-
-  set note(value) {
-    return this.setNote(value);
-  }
-
-  setPriority(value) {
-    return (this.priority = new Priority(value));
   }
 }
 
