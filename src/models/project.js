@@ -10,7 +10,6 @@ export default class Project extends Jot {
   constructor(title) {
     super("PROJECT", title);
     this.tier = "PROJECT";
-    // const groupId = this.#groupId;
   }
 
   get note() {

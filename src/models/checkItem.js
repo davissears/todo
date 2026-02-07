@@ -5,7 +5,3 @@ export default class CheckItem extends Jot {
     super("CHECKITEM", title);
   }
 }
-
-// TEST
-const sample = new CheckItem("create CheckItem");
-
