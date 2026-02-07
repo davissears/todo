@@ -28,6 +28,7 @@ export default class Project extends Jot {
   }
 
   set priority(value) {
-    this.#priority = new Priority(value);
+    const group = this.groupId;
+    this.#priority = new Priority(value, group);
   }
 }

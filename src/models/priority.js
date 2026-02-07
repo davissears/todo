@@ -1,8 +1,10 @@
 export default class Priority {
   #priority;
+  // TODO: priority should not know about `tier`
   #tier = "";
-  constructor(priority) {
+  constructor(priority, groupId) {
     this.priority = priority;
+    this.groupId = groupId;
   }
 
   get priority() {
