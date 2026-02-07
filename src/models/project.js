@@ -10,6 +10,7 @@ export default class Project extends Jot {
   constructor(title) {
     super("PROJECT", title);
     this.tier = "PROJECT";
+    // const groupId = this.#groupId;
   }
 
   get note() {
@@ -18,7 +19,8 @@ export default class Project extends Jot {
   }
 
   set note(value) {
-    this.#note = new Note(value);
+    const group = this.groupId; //captures instance groupId
+    this.#note = new Note(value, group); //pass groupId to `Note`
   }
 
   get priority() {
@@ -29,18 +31,3 @@ export default class Project extends Jot {
     this.#priority = new Priority(value);
   }
 }
-
-const sample = new Project("Make a Project");
-console.log(sample, sample.note);
-sample.note = "HIGH";
-console.log(
-  "!!!init sample.priority object, use setter & getter:::HIGH:::!!!",
-  sample,
-  sample.note,
-); // ! PASS
-sample.note = "LOW";
-console.log(
-  "!!!overwrite priority value with set:::LOW:::",
-  sample,
-  sample.note,
-);
