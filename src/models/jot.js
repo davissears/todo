@@ -15,7 +15,7 @@ export default class Jot {
     return this.#title;
   }
   set title(title) {
-    return (this.#title = title);
+    this.#title = title; //remove `return`
   }
 
   get id() {
@@ -32,7 +32,7 @@ export default class Jot {
   set tier(tier) {
     const validTiers = ["PROJECT", "TODO", "CHECKLIST", "CHECKITEM"];
     if (validTiers.includes(tier)) {
-      return (this.#tier = tier);
+      this.#tier = tier; // remove `return`
     } else {
       throw new Error(`invalid jot tier value:${tier}`);
     }
@@ -42,7 +42,7 @@ export default class Jot {
     return this.#description;
   }
   set description(description) {
-    return (this.#description = description);
+    this.#description = description; // remove `return`
   }
 
   get status() {
@@ -51,7 +51,7 @@ export default class Jot {
   set status(status) {
     const validStatus = ["COMPLETE", "ACTIVE", "BLOCKED"];
     if (validStatus.includes(status)) {
-      return (this.#status = status);
+      this.#status = status; // remove `return`
     } else {
       throw new Error(`invalid jot status value: ${status}`);
     }
@@ -62,7 +62,7 @@ export default class Jot {
   }
 
   set dueDateTime(date) {
-    return (this.#dueDateTime = new Date(date).toISOString());
+    this.#dueDateTime = new Date(date).toISOString(); // remove `return`
   }
 }
 // TEST
