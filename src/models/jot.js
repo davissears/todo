@@ -18,14 +18,6 @@ export default class Jot {
     this.#title = title; //remove `return`
   }
 
-  get id() {
-    return this.#id;
-  }
-
-  get groupId() {
-    return this.#groupId;
-  }
-
   get tier() {
     return this.#tier;
   }
@@ -36,6 +28,14 @@ export default class Jot {
     } else {
       throw new Error(`invalid jot tier value:${tier}`);
     }
+  }
+
+  get id() {
+    return this.#id;
+  }
+
+  get groupId() {
+    return this.#groupId;
   }
 
   get description() {
@@ -65,6 +65,3 @@ export default class Jot {
     this.#dueDateTime = new Date(date).toISOString(); // remove `return`
   }
 }
-// TEST
-const sample = new Jot("PROJECT", "this is a project");
-console.log(sample, sample.id, sample.groupId);
