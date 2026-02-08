@@ -8,6 +8,8 @@ export default class Model {
     this.load();
   }
 
+  // FIX: implement functional serialize/deserialize functions
+  // NOTE: `save()` & `load()` serve to handle object init ONLY!
   load() {
     const data = this.storage.load();
     if (data) {
