@@ -14,7 +14,7 @@ import {
   addDueTime,
 } from "./behaviors.js";
 // import class for object instantiation
-import { Jot } from "./jot.js";
+import { Jot } from "./objects/jot.js";
 
 // composes `priority` onto object
 const createProject = (title) => {

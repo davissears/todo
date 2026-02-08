@@ -2,7 +2,7 @@
 
 // import model and view to act as a entrypoint
 //    controller utilized both
-import Model from "./models/model.js";
+import Model from "./model/model.js";
 import View from "./views/views.js";
 
 // called to init app

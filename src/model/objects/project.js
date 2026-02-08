@@ -1,6 +1,6 @@
-import Jot from "./jot";
-import Priority from "./priority";
-import Note from "./note";
+import Jot from "./jot.js";
+import Priority from "./properties/priority.js";
+import Note from "./properties/note.js";
 
 // TODO: remove `return` statements from setters
 
