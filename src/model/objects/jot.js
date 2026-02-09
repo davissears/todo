@@ -62,6 +62,6 @@ export default class Jot {
   }
 
   set dueDateTime(date) {
-    this.#dueDateTime = new Date(date).toISOString(); // remove `return`
+    this.#dueDateTime = new Date(date);
   }
 }
