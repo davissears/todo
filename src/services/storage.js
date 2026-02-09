@@ -19,17 +19,41 @@ export default class StorageService {
       id: String,
       priority: String,
     };
-    const Project = {
+    const project = {
       description: String,
       dueDateTime: dateObj,
       groupId: String,
       id: String,
-      note: noteObj,
-      priority: priorityObj,
+      note: noteObj || undefined, //test this
+      priority: priorityObj || undefined, //test this
       status: String,
       tier: String,
       title: String,
     };
+
+    const todo = {
+      description: String,
+      dueDateTime: dateObj,
+      groupId: String,
+      id: String,
+      note: noteObj || undefined, //test this
+      priority: priorityObj || undefined, //test this
+      status: String,
+      tier: String,
+      title: String,
+    };
+    
+    const checklist = {
+      description: String,
+      dueDateTime: dateObj,
+      groupId: String,
+      id: String,
+      note: noteObj || undefined, //test this
+      priority: priorityObj || undefined, //test this
+      status: String,
+      tier: String,
+      title: String,
+    }
   }
 }
 

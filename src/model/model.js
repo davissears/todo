@@ -1,4 +1,5 @@
 import StorageService from "../services/storage.js";
+import Checklist from "./objects/checklist.js";
 import Project from "./objects/project.js";
 import Todo from "./objects/todo.js";
 // import Checklist from "./objects/checklist.js";
@@ -41,11 +42,15 @@ export default class Model {
   // ?: can a single create function init all objects?
   createChild(title, tier, parent) {
     if (tier === "TODO") {
-      // const project = this.projects.find(parent.groupId);
-      const todo = new Todo(title);
-      todo.groupId = parent.groupId;
-      parent.items.push(todo);
+      return (child = new Todo(title));
+    } else if (tier === "CHECKLIST") {
+      return (child = new Checklist(title));
+    } else if (tier === "CHECKITEM") {
+      return (child = new CheckItem(title));
     }
+
+    child.groupId = parent.groupId;
+    parent.items.push(child);
   }
 }
 
