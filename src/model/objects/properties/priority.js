@@ -1,10 +1,13 @@
 export default class Priority {
   #priority;
-  // TODO: priority should not know about `tier`
-  #tier = "";
+  #id = crypto.randomUUID();
   constructor(priority, groupId) {
     this.priority = priority;
     this.groupId = groupId;
+  }
+
+  get id() {
+    return this.#id;
   }
 
   get priority() {
@@ -12,9 +15,6 @@ export default class Priority {
   }
 
   set priority(priority) {
-    if (this.#tier === "CHECKITEM") {
-      throw new Error(`'CHECKITEM' cannot have a priority`);
-    }
     const validPriority = ["NONE", "LOW", "MED", "HIGH", "EMERGENCY"];
     if (validPriority.includes(priority)) {
       return (this.#priority = priority);
