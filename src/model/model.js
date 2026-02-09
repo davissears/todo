@@ -5,8 +5,6 @@ import Project from "./objects/project.js";
 
 export default class Model {
   constructor() {
-    //TEST: temporary storage
-    this.projects = [];
     this.storage = new StorageService("todo-app-data");
     this.load();
   }
