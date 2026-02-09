@@ -3,9 +3,8 @@ class StorageService {
   constructor(key) {
     this.key = key;
   }
-  
-  
-      //NOTE: serialize
+
+  //NOTE: serialize
   save(data) {
     try {
       // key=`this` instance: value=all data from this instanse

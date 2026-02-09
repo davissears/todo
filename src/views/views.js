@@ -1,11 +1,11 @@
-import Layout from "./layout.js";
+// import Layout from "./layout.js";
 
 export default class View {
   constructor() {
     console.log("View initialized");
     // root
-    this.app = document.querySelector("#root");
-    this.layout = new Layout(this.app);
+    // this.app = document.querySelector("#root");
+    // this.layout = new Layout(this.app);
     // this.app.append(this.layout);
     // // header
     // this.header = this.createElement("header");
