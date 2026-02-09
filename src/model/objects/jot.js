@@ -38,6 +38,10 @@ export default class Jot {
     return this.#groupId;
   }
 
+  set groupId(value) {
+    this.#groupId = value;
+  }
+
   get description() {
     return this.#description;
   }

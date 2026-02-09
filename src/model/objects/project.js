@@ -10,6 +10,7 @@ export default class Project extends Jot {
   constructor(title) {
     super("PROJECT", title);
     this.tier = "PROJECT";
+    this.items = [];
   }
 
   get note() {
