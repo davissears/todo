@@ -66,6 +66,6 @@ export default class Jot {
   }
 
   set dueDateTime(date) {
-    this.#dueDateTime = new Date(date);
+    this.#dueDateTime = { date: new Date(date) };
   }
 }

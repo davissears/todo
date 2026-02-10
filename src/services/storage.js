@@ -4,7 +4,6 @@ export default class StorageService {
     this.key = key;
     const dateObj = {
       date: new Date(String),
-      granularity: "FULL",
     };
     // ! TEMPLATES
 
@@ -42,7 +41,7 @@ export default class StorageService {
       tier: String,
       title: String,
     };
-    
+
     const checklist = {
       description: String,
       dueDateTime: dateObj,
@@ -53,15 +52,29 @@ export default class StorageService {
       status: String,
       tier: String,
       title: String,
-    }
+    };
+  }
+
+  serializeDateObj(obj) {
+    return {
+      date: obj.date.toISOString(),
+    };
+  }
+
+  deserializeDateObj(storedItem) {
+    return {
+      date: new Date(storedItem.date),
+    };
   }
 }
 
 // TEST
-const dateObj = {
-  date: "2023-01-13T21:52:03.392Z",
-  granularity: "FULL",
-};
-const dueDate = new Date("2023-01-13T21:52:03.392Z");
-const sample = new StorageService();
-console.log(sample);
+
+const dueDateTime = { date: new Date("2027-01-13T21:52:03.392Z") };
+const storage = new StorageService();
+console.log(":::DUEDATETIME:::", dueDateTime);
+console.log(":::SERIALIZE:::", storage.serializeDateObj(dueDateTime));
+console.log(
+  ":::SERIAL/DESERIAL",
+  storage.deserializeDateObj(storage.serializeDateObj(dueDateTime)),
+);
