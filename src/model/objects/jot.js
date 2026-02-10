@@ -37,7 +37,6 @@ export default class Jot {
   get groupId() {
     return this.#groupId;
   }
-
   set groupId(value) {
     this.#groupId = value;
   }
@@ -66,6 +65,6 @@ export default class Jot {
   }
 
   set dueDateTime(date) {
-    this.#dueDateTime = duedateTime = { date: new Date(date) };
+    this.#dueDateTime = { date: new Date(date) };
   }
 }

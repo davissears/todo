@@ -31,5 +31,3 @@ export default class Priority {
     }
   }
 }
-const sample = new Priority("HIGH", "67");
-console.log(sample);

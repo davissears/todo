@@ -52,6 +52,8 @@ export default class Model {
     child.groupId = parent.groupId;
     parent.items.push(child);
   }
+  
+  // TODO: write add prop function
 }
 // TEST
 // const model = new Model();
