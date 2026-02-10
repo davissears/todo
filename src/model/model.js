@@ -53,8 +53,6 @@ export default class Model {
     parent.items.push(child);
   }
 }
-
 // TEST
 // const model = new Model();
 // console.log(model);
-// model.createProject("CREATE A PROJECT");

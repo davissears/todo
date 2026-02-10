@@ -1,3 +1,5 @@
+import Priority from "../model/objects/properties/priority.js";
+
 // NOTE: new storage class goes here
 export default class StorageService {
   constructor(key) {
@@ -60,21 +62,37 @@ export default class StorageService {
       date: obj.date.toISOString(),
     };
   }
-
-  deserializeDateObj(storedItem) {
+  deserializeDateObj(storedObj) {
     return {
-      date: new Date(storedItem.date),
+      date: new Date(storedObj.date),
     };
+  }
+
+  serializePriorityObj(obj) {
+    return {
+      groupId: obj.groupId,
+      prop: obj.prop,
+      id: obj.id,
+      priority: obj.priority,
+    };
+  }
+  deserializePriorityObj(storedObj) {
+    //create instance
+    const instance = new Priority(storedObj.priority, storedObj.groupId);
+    //overwrite id
+    instance.id = storedObj.id;
+    return instance;
   }
 }
 
 // TEST
 
-const dueDateTime = { date: new Date("2027-01-13T21:52:03.392Z") };
 const storage = new StorageService();
-console.log(":::DUEDATETIME:::", dueDateTime);
-console.log(":::SERIALIZE:::", storage.serializeDateObj(dueDateTime));
+
+const sampleData = new Priority("HIGH", "6767");
+console.log(":::INPUT:::", sampleData);
+console.log(":::SERIALIZE:::", storage.serializePriorityObj(sampleData));
 console.log(
   ":::SERIAL/DESERIAL",
-  storage.deserializeDateObj(storage.serializeDateObj(dueDateTime)),
+  storage.deserializePriorityObj(storage.serializePriorityObj(sampleData)),
 );

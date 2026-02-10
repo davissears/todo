@@ -1,15 +1,23 @@
 export default class Priority {
   #priority;
   #id = crypto.randomUUID();
+  #prop = "PRIORITY";
   constructor(priority, groupId) {
-    this.priority = priority;
     this.groupId = groupId;
+    this.id;
+    this.priority = priority;
   }
 
+  get prop() {
+    return this.#prop;
+  }
   get id() {
     return this.#id;
   }
 
+  set id(value) {
+    this.#id = value;
+  }
   get priority() {
     return this.#priority;
   }
@@ -23,3 +31,5 @@ export default class Priority {
     }
   }
 }
+const sample = new Priority("HIGH", "67");
+console.log(sample);
