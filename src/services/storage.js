@@ -1,4 +1,5 @@
 import Priority from "../model/objects/properties/priority.js";
+import Note from "../model/objects/properties/note.js";
 
 // NOTE: new storage class goes here
 export default class StorageService {
@@ -83,16 +84,36 @@ export default class StorageService {
     instance.id = storedObj.id;
     return instance;
   }
+
+  serializeNoteObj(obj) {
+    return {
+      groupId: obj.groupId,
+      prop: obj.prop,
+      id: obj.id,
+      note: obj.note,
+    };
+  }
+  deserializeNoteObj(storedObj) {
+    const instance = new Note(storedObj.note, storedObj.groupId);
+    instance.id = storedObj.id;
+    return instance;
+  }
 }
 
 // TEST
 
 const storage = new StorageService();
+const sampleData = new Note(":::THIS IS A NOTE:::", "6767");
+console.log(sampleData);
 
-const sampleData = new Priority("HIGH", "6767");
-console.log(":::INPUT:::", sampleData);
-console.log(":::SERIALIZE:::", storage.serializePriorityObj(sampleData));
-console.log(
-  ":::SERIAL/DESERIAL",
-  storage.deserializePriorityObj(storage.serializePriorityObj(sampleData)),
-);
+const serial = storage.serializeNoteObj(sampleData);
+console.log(":::serial:::", serial);
+console.log(":::serial/deserial", storage.deserializeNoteObj(serial));
+
+// const sampleData = new Priority("HIGH", "6767");
+// console.log(":::INPUT:::", sampleData);
+// console.log(":::SERIALIZE:::", storage.serializePriorityObj(sampleData));
+// console.log(
+//   ":::SERIAL/DESERIAL",
+//   storage.deserializePriorityObj(storage.serializePriorityObj(sampleData)),
+// );
