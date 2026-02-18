@@ -60,6 +60,12 @@ export default class StorageService {
   }
 
   serializeDateObj(obj) {
+    // TEST: what is obj?
+    console.log(
+      ":::LOGSTART:::serializeDateObj:::OBJ:::obj-is:",
+      obj,
+      ":::LOGEND:::",
+    );
     if (obj !== undefined)
       return {
         date: obj.date.toISOString(),
@@ -121,27 +127,45 @@ export default class StorageService {
       dueDateTime: this.serializeDateObj(obj.dueDateTime),
     };
   }
-  
-  // FIX: prop object deserialization
+
   deserializeProject(storedObj) {
     const instance = new Project(storedObj.title);
     instance.items = storedObj.items;
-    instance.note = this.deserializeNoteObj(storedObj.note); // FIX: this
+
+    if (storedObj.note) {
+      const noteData = this.deserializeNoteObj(storedObj.note);
+      instance.note = noteData.note;
+    }
+
+    if (storedObj.priority) {
+      const priorityData = this.deserializePriorityObj(storedObj.priority);
+      instance.priority = priorityData.priority;
+    }
+    if (storedObj.dueDateTime) {
+      const dueDateTimeData = this.deserializeDateObj(storedObj.dueDateTime);
+      instance.dueDateTime = dueDateTimeData.dueDateTime;
+    }
+    return instance;
   }
 }
 
 // TEST
 
 const storage = new StorageService();
-const sampleNote = new Note(":::THIS IS A NOTE:::", "6767");
-const samplePriority = new Priority("HIGH", "6767");
+// const sampleNote = new Note(":::THIS IS A NOTE:::", "6767");
+// console.log(":::NOTE", sampleNote);
+// const samplePriority = new Priority("HIGH", "6767");
+// console.log(":::PRIORITY:::", samplePriority);
 
 const sampleData = new Project("::: PROJECT OBJECT");
-
 console.log(":::PROJECT:::", sampleData);
-console.log(":::NOTE", sampleNote);
-console.log(":::PRIORITY:::", samplePriority);
-console.log(storage.serializeProject(":::SERIALIZE:::", sampleData));
+
+sampleData.note = "::: TEST NOTE SETTER :::";
+console.log(":::SAMPLENOTE:::", sampleData.note);
+
+sampleData.priority = "HIGH";
+console.log(":::SAMPLEPRIORITY:::", sampleData.priority);
+console.log(":::SERIALIZE:::", storage.serializeProject(sampleData));
 console.log(
   ":::DESERIAL",
   storage.deserializeProject(storage.serializeProject(sampleData)),

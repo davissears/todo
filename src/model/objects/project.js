@@ -14,8 +14,8 @@ export default class Project extends Jot {
   }
 
   get note() {
-    //   this.#note= object.this.#note.note= objectsnote` prop
-    return this.#note.note;
+    //   this.#note= object ::: this.#note.note= `object note prop`
+    return this.#note?.note; // ?. used to return `undefined` if prop isn't set
   }
 
   set note(value) {
@@ -24,7 +24,8 @@ export default class Project extends Jot {
   }
 
   get priority() {
-    return this.#priority.priority;
+    //
+    return this.#priority?.priority;
   }
 
   set priority(value) {

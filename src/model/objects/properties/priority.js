@@ -23,7 +23,14 @@ export default class Priority {
   }
 
   set priority(priority) {
-    const validPriority = ["NONE", "LOW", "MED", "HIGH", "EMERGENCY"];
+    const validPriority = [
+      undefined,
+      "NONE",
+      "LOW",
+      "MED",
+      "HIGH",
+      "EMERGENCY",
+    ];
     if (validPriority.includes(priority)) {
       return (this.#priority = priority);
     } else {

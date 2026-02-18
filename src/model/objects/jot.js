@@ -61,7 +61,7 @@ export default class Jot {
   }
 
   get dueDateTime() {
-    return new Date(this.#dueDateTime);
+    return this.#dueDateTime;
   }
 
   set dueDateTime(date) {
