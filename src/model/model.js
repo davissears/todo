@@ -32,7 +32,6 @@ export default class Model {
   //     console.error("Error saving to localStorage", e);
   //   }
   // }
-  // TEST: !PASS: init project
   createProject(title) {
     const project = new Project(title);
     this.projects.push(project);
@@ -52,8 +51,9 @@ export default class Model {
     child.groupId = parent.groupId;
     parent.items.push(child);
   }
-  
+
   // TODO: write add prop function
+  // NOTE: perhaps one method should be should be able to set any prop
 }
 // TEST
 // const model = new Model();

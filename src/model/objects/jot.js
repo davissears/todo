@@ -33,6 +33,9 @@ export default class Jot {
   get id() {
     return this.#id;
   }
+  set id(value) {
+    this.#id = value;
+  }
 
   get groupId() {
     return this.#groupId;

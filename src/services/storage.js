@@ -131,6 +131,9 @@ export default class StorageService {
   deserializeProject(storedObj) {
     const instance = new Project(storedObj.title);
     instance.items = storedObj.items;
+    instance.id = storedObj.id;
+    instance.groupId = storedObj.groupId; 
+    // FIX: rehydrated prop id's should match the original
 
     if (storedObj.note) {
       const noteData = this.deserializeNoteObj(storedObj.note);
@@ -143,33 +146,59 @@ export default class StorageService {
     }
     if (storedObj.dueDateTime) {
       const dueDateTimeData = this.deserializeDateObj(storedObj.dueDateTime);
-      instance.dueDateTime = dueDateTimeData.dueDateTime;
+      instance.dueDateTime = dueDateTimeData.date;
     }
     return instance;
   }
 }
 
 // TEST
-
+//storage init
 const storage = new StorageService();
-// const sampleNote = new Note(":::THIS IS A NOTE:::", "6767");
-// console.log(":::NOTE", sampleNote);
-// const samplePriority = new Priority("HIGH", "6767");
-// console.log(":::PRIORITY:::", samplePriority);
-
+//project init
 const sampleData = new Project("::: PROJECT OBJECT");
-console.log(":::PROJECT:::", sampleData);
-
+// set note
 sampleData.note = "::: TEST NOTE SETTER :::";
 console.log(":::SAMPLENOTE:::", sampleData.note);
-
+// set priority
 sampleData.priority = "HIGH";
 console.log(":::SAMPLEPRIORITY:::", sampleData.priority);
+//set dueDateTime
+sampleData.dueDateTime = "5/5/2027";
+console.log(":::SAMLEDUEDATETIME", sampleData.dueDateTime);
+//serialize
 console.log(":::SERIALIZE:::", storage.serializeProject(sampleData));
+// serialize & deserialize
 console.log(
   ":::DESERIAL",
   storage.deserializeProject(storage.serializeProject(sampleData)),
 );
+// test after rehydration
+// 1. setup original
+const original = new Project("Test Project");
+original.note = "Original Note";
+original.dueDateTime = "2027-05-05";
+
+// 2. round trip
+const serialized = storage.serializeProject(original);
+const rehydrated = storage.deserializeProject(serialized); // Capture the NEW object
+
+// 3. The "Truth" Tests
+console.log("--- ROUND TRIP VERIFICATION ---");
+
+// Does the title match?
+console.log("Title Match:", original.title === rehydrated.title);
+
+// Does the note match?
+console.log("Note Match:", original.note === rehydrated.note);
+
+// CRITICAL: Does the ID match?
+// (If this is false, your storage will create duplicates)
+console.log("ID Match:", original.id === rehydrated.id);
+
+// 4. Debugging the objects side-by-side
+console.log("Original ID:", original.id);
+console.log("Rehydrated ID:", rehydrated?.id);
 //
 //
 //
