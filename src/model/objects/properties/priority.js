@@ -5,7 +5,7 @@ export default class Priority {
   constructor(priority, groupId) {
     this.groupId = groupId;
     this.id;
-    this.priority = priority;
+    this.#priority = priority;
   }
 
   get prop() {
@@ -22,7 +22,7 @@ export default class Priority {
     return this.#priority;
   }
 
-  set priority(priority) {
+  set priority(value) {
     const validPriority = [
       undefined,
       "NONE",
@@ -31,10 +31,12 @@ export default class Priority {
       "HIGH",
       "EMERGENCY",
     ];
-    if (validPriority.includes(priority)) {
-      return (this.#priority = priority);
+    if (validPriority.includes(value) && value instanceof Priority) {
+      this.#priority = value;
+    } else if (!validPriority.includes(value)) {
+      throw new Error(`${value} is not a valid value`);
     } else {
-      throw new Error(`${priority} is not a valid value`);
+      this.#priority = new Priority(value, this.groupId);
     }
   }
 }

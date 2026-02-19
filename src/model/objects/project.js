@@ -15,17 +15,21 @@ export default class Project extends Jot {
 
   get note() {
     //   this.#note= object ::: this.#note.note= `object note prop`
-    return this.#note?.note; // ?. used to return `undefined` if prop isn't set
+    // return this.#note?.note; // ?. used to return `undefined` if prop isn't set
+    return this.#note;
   }
 
   set note(value) {
-    const group = this.groupId; //captures instance groupId
-    this.#note = new Note(value, group); //pass groupId to `Note`
+    if (value instanceof Note) {
+      this.#note = value;
+    } else {
+      this.#note = new Note(value, this.groupId);
+    }
   }
 
   get priority() {
-    //
-    return this.#priority?.priority;
+    // return this.#priority?.priority;
+    return this.#priority;
   }
 
   set priority(value) {

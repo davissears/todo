@@ -132,17 +132,15 @@ export default class StorageService {
     const instance = new Project(storedObj.title);
     instance.items = storedObj.items;
     instance.id = storedObj.id;
-    instance.groupId = storedObj.groupId; 
+    instance.groupId = storedObj.groupId;
     // FIX: rehydrated prop id's should match the original
 
     if (storedObj.note) {
-      const noteData = this.deserializeNoteObj(storedObj.note);
-      instance.note = noteData.note;
+      instance.note = this.deserializeNoteObj(storedObj.note);
     }
 
     if (storedObj.priority) {
-      const priorityData = this.deserializePriorityObj(storedObj.priority);
-      instance.priority = priorityData.priority;
+      instance.priority = this.deserializePriorityObj(storedObj.note);
     }
     if (storedObj.dueDateTime) {
       const dueDateTimeData = this.deserializeDateObj(storedObj.dueDateTime);
@@ -176,7 +174,7 @@ console.log(
 // test after rehydration
 // 1. setup original
 const original = new Project("Test Project");
-original.note = "Original Note";
+original.note = ":::Original Note:::";
 original.dueDateTime = "2027-05-05";
 
 // 2. round trip
@@ -186,11 +184,11 @@ const rehydrated = storage.deserializeProject(serialized); // Capture the NEW ob
 // 3. The "Truth" Tests
 console.log("--- ROUND TRIP VERIFICATION ---");
 
-// Does the title match?
-console.log("Title Match:", original.title === rehydrated.title);
+// Does the note CONTENT match?
+console.log("Note Match:", original.note.note === rehydrated.note.note);
 
-// Does the note match?
-console.log("Note Match:", original.note === rehydrated.note);
+// Does the note ID match?
+console.log("Note ID Match:", original.note.id === rehydrated.note.id);
 
 // CRITICAL: Does the ID match?
 // (If this is false, your storage will create duplicates)
@@ -199,6 +197,18 @@ console.log("ID Match:", original.id === rehydrated.id);
 // 4. Debugging the objects side-by-side
 console.log("Original ID:", original.id);
 console.log("Rehydrated ID:", rehydrated?.id);
+console.log(
+  "original note",
+  original.note,
+  original.note.note,
+  original.note.id,
+);
+console.log(
+  "rehydrated note",
+  rehydrated?.note,
+  rehydrated.note.note,
+  rehydrated.note.id,
+);
 //
 //
 //
