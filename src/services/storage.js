@@ -131,8 +131,12 @@ export default class StorageService {
   deserializeProject(storedObj) {
     const instance = new Project(storedObj.title);
     instance.items = storedObj.items;
+    instance.title = storedObj.title;
     instance.id = storedObj.id;
     instance.groupId = storedObj.groupId;
+    instance.description = storedObj.description;
+    instance.status = storedObj.status;
+
     // FIX: rehydrated prop id's should match the original
 
     if (storedObj.note) {
@@ -140,7 +144,7 @@ export default class StorageService {
     }
 
     if (storedObj.priority) {
-      instance.priority = this.deserializePriorityObj(storedObj.note);
+      instance.priority = this.deserializePriorityObj(storedObj.priority);
     }
     if (storedObj.dueDateTime) {
       const dueDateTimeData = this.deserializeDateObj(storedObj.dueDateTime);
@@ -151,64 +155,58 @@ export default class StorageService {
 }
 
 // TEST
-//storage init
+// --- VERIFICATION SUITE ---
+
 const storage = new StorageService();
-//project init
-const sampleData = new Project("::: PROJECT OBJECT");
-// set note
-sampleData.note = "::: TEST NOTE SETTER :::";
-console.log(":::SAMPLENOTE:::", sampleData.note);
-// set priority
-sampleData.priority = "HIGH";
-console.log(":::SAMPLEPRIORITY:::", sampleData.priority);
-//set dueDateTime
-sampleData.dueDateTime = "5/5/2027";
-console.log(":::SAMLEDUEDATETIME", sampleData.dueDateTime);
-//serialize
-console.log(":::SERIALIZE:::", storage.serializeProject(sampleData));
-// serialize & deserialize
-console.log(
-  ":::DESERIAL",
-  storage.deserializeProject(storage.serializeProject(sampleData)),
-);
-// test after rehydration
-// 1. setup original
-const original = new Project("Test Project");
-original.note = ":::Original Note:::";
-original.dueDateTime = "2027-05-05";
 
-// 2. round trip
+// 1. Create a complex Project
+const original = new Project("Master Task");
+original.description = "This is a detailed description";
+original.note = "Critical metadata about the task";
+original.priority = "EMERGENCY";
+original.dueDateTime = "2026-12-25";
+
+// 2. Perform the Round Trip
 const serialized = storage.serializeProject(original);
-const rehydrated = storage.deserializeProject(serialized); // Capture the NEW object
+const rehydrated = storage.deserializeProject(serialized);
 
-// 3. The "Truth" Tests
-console.log("--- ROUND TRIP VERIFICATION ---");
+// 3. Helper for clean output
+function verify(label, result) {
+  console.log(`${result ? "✅ PASS" : "❌ FAIL"} | ${label}`);
+}
 
-// Does the note CONTENT match?
-console.log("Note Match:", original.note.note === rehydrated.note.note);
+console.log("\n--- STARTING ROUND TRIP AUDIT ---");
 
-// Does the note ID match?
-console.log("Note ID Match:", original.note.id === rehydrated.note.id);
+// Core Properties
+verify("Title Match", original.title === rehydrated.title);
+verify("Description Match", original.description === rehydrated.description);
+verify("Project ID Preserved", original.id === rehydrated.id);
+verify("Group ID Preserved", original.groupId === rehydrated.groupId);
 
-// CRITICAL: Does the ID match?
-// (If this is false, your storage will create duplicates)
-console.log("ID Match:", original.id === rehydrated.id);
+// Note Object
+verify("Note Content Match", original.note.note === rehydrated.note.note);
+verify("Note ID Preserved", original.note.id === rehydrated.note.id);
 
-// 4. Debugging the objects side-by-side
-console.log("Original ID:", original.id);
-console.log("Rehydrated ID:", rehydrated?.id);
-console.log(
-  "original note",
-  original.note,
-  original.note.note,
-  original.note.id,
+// Priority Object
+verify(
+  "Priority Level Match",
+  original.priority.priority === rehydrated.priority.priority,
 );
-console.log(
-  "rehydrated note",
-  rehydrated?.note,
-  rehydrated.note.note,
-  rehydrated.note.id,
+verify(
+  "Priority ID Preserved",
+  original.priority.id === rehydrated.priority.id,
 );
+
+// Date Object (comparing millisecond timestamps)
+verify(
+  "Date Match",
+  original.dueDateTime.date.getTime() === rehydrated.dueDateTime.date.getTime(),
+);
+
+console.log("\n--- DIAGNOSTIC DATA ---");
+console.log("Original ID:  ", original.id);
+console.log("Rehydrated ID:", rehydrated.id);
+console.log("Note ID:      ", rehydrated.note.id);
 //
 //
 //

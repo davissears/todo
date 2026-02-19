@@ -55,7 +55,7 @@ export default class Jot {
     return this.#status;
   }
   set status(status) {
-    const validStatus = ["COMPLETE", "ACTIVE", "BLOCKED"];
+    const validStatus = [undefined, "COMPLETE", "ACTIVE", "BLOCKED"];
     if (validStatus.includes(status)) {
       this.#status = status; // remove `return`
     } else {

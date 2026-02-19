@@ -2,8 +2,6 @@ import Jot from "./jot.js";
 import Priority from "./properties/priority.js";
 import Note from "./properties/note.js";
 
-// TODO: remove `return` statements from setters
-
 export default class Project extends Jot {
   #note;
   #priority;
@@ -14,8 +12,6 @@ export default class Project extends Jot {
   }
 
   get note() {
-    //   this.#note= object ::: this.#note.note= `object note prop`
-    // return this.#note?.note; // ?. used to return `undefined` if prop isn't set
     return this.#note;
   }
 
@@ -28,12 +24,14 @@ export default class Project extends Jot {
   }
 
   get priority() {
-    // return this.#priority?.priority;
     return this.#priority;
   }
 
   set priority(value) {
-    const group = this.groupId;
-    this.#priority = new Priority(value, group);
+    if (value instanceof Priority) {
+      this.#priority = value;
+    } else {
+      this.#priority = new Priority(value, this.groupId);
+    }
   }
 }
