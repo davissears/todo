@@ -1,6 +1,7 @@
 import Priority from "../model/objects/properties/priority.js";
 import Note from "../model/objects/properties/note.js";
 import Project from "../model/objects/project.js";
+import CheckItem from "../model/objects/checkItem.js";
 
 // NOTE: new storage class goes here
 export default class StorageService {
@@ -113,6 +114,39 @@ export default class StorageService {
     return instance;
   }
 
+  serializeCheckItem(obj) {
+    if (obj !== undefined)
+      return {
+        title: obj.title,
+        tier: obj.tier,
+        id: obj.id,
+        groupId: obj.groupId,
+        description: obj.description,
+        status: obj.status,
+        dueDateTime: this.serializeDateObj(obj.dueDateTime),
+      };
+  }
+  deserializeCheckItem(storedObj) {
+    const instance = new CheckItem(storedObj.title);
+    instance.id = storedObj.id;
+    instance.groupId = storedObj.groupId;
+    instance.description = storedObj.description;
+    instance.status = storedObj.status;
+
+    if (storedObj.dueDateTime) {
+      const dueDateTimeData = this.deserializeDateObj(storedObj.dueDateTime);
+      instance.dueDateTime = dueDateTimeData.date;
+    }
+    return instance;
+  }
+
+  // ?: will i need a method to call methods for objects in `items`?
+  // EXAMPLE: for items.forEach(obj) => findTier(obj)
+  // findTier(obj) {
+  //  if (obj.tier ===  todo) {
+  //    deserializeTodo()
+  //  }
+  // }
   serializeProject(obj) {
     return {
       items: obj.items,
@@ -137,8 +171,6 @@ export default class StorageService {
     instance.description = storedObj.description;
     instance.status = storedObj.status;
 
-    // FIX: rehydrated prop id's should match the original
-
     if (storedObj.note) {
       instance.note = this.deserializeNoteObj(storedObj.note);
     }
@@ -157,88 +189,49 @@ export default class StorageService {
 // TEST
 // --- VERIFICATION SUITE ---
 
-const storage = new StorageService();
+// const storage = new StorageService();
 
 // 1. Create a complex Project
-const original = new Project("Master Task");
-original.description = "This is a detailed description";
-original.note = "Critical metadata about the task";
-original.priority = "EMERGENCY";
-original.dueDateTime = "2026-12-25";
+// const original = new Project("Master Task")
+// original.description = "This is a detailed description";
+// original.note = "Critical metadata about the task";
+// original.priority = "EMERGENCY";
+// original.dueDateTime = "2026-12-25";
 
+// 1. create complex checkItem
+const storage = new StorageService();
+const project = new Project("!!! PROJECT !!!");
+const original = new CheckItem("!!!SAMPLE CHECK ITEM!!!");
+original.description = "::: DESCRIPTION :::";
+original.status = "ACTIVE";
+original.dueDateTime = `2027-02-20T22:07:50.128Z`;
+console.log(":::CHECKITEM:::", original);
 // 2. Perform the Round Trip
-const serialized = storage.serializeProject(original);
-const rehydrated = storage.deserializeProject(serialized);
+const serialized = storage.serializeCheckItem(original);
+console.log(":::SERIALIZED:::CHECKITEM:::", serialized);
+const rehydrated = storage.deserializeCheckItem(serialized);
+console.log(":::REHYDRATED:::CHECKITEM:::", rehydrated);
+
+console.log("\n--- STARTING ROUND TRIP AUDIT ---");
+
+console.log("\n--- DIAGNOSTIC DATA ---");
+console.log("Original ID:  ", original.id);
+console.log("Rehydrated ID:", rehydrated.id);
+// console.log("Note ID:      ", rehydrated.note.id);
 
 // 3. Helper for clean output
 function verify(label, result) {
   console.log(`${result ? "✅ PASS" : "❌ FAIL"} | ${label}`);
 }
-
-console.log("\n--- STARTING ROUND TRIP AUDIT ---");
-
-// Core Properties
-verify("Title Match", original.title === rehydrated.title);
-verify("Description Match", original.description === rehydrated.description);
-verify("Project ID Preserved", original.id === rehydrated.id);
-verify("Group ID Preserved", original.groupId === rehydrated.groupId);
-
-// Note Object
-verify("Note Content Match", original.note.note === rehydrated.note.note);
-verify("Note ID Preserved", original.note.id === rehydrated.note.id);
-
-// Priority Object
-verify(
-  "Priority Level Match",
-  original.priority.priority === rehydrated.priority.priority,
-);
-verify(
-  "Priority ID Preserved",
-  original.priority.id === rehydrated.priority.id,
-);
-
 // Date Object (comparing millisecond timestamps)
 verify(
   "Date Match",
   original.dueDateTime.date.getTime() === rehydrated.dueDateTime.date.getTime(),
 );
-
-console.log("\n--- DIAGNOSTIC DATA ---");
-console.log("Original ID:  ", original.id);
-console.log("Rehydrated ID:", rehydrated.id);
-console.log("Note ID:      ", rehydrated.note.id);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-// console.log(sampleData);
-// const serial = storage.serializeNoteObj(sampleData);
-// console.log(":::serial:::", serial);
-// console.log(":::serial/deserial", storage.deserializeNoteObj(serial));
-
-// console.log(":::INPUT:::", sampleData);
-// console.log(":::SERIALIZE:::", storage.serializePriorityObj(sampleData));
-// console.log(
-//   ":::SERIAL/DESERIAL",
-//   storage.deserializePriorityObj(storage.serializePriorityObj(sampleData)),
-// );
+// Core Properties
+verify("Title Match", original.title === rehydrated.title);
+verify("Description Match", original.description === rehydrated.description);
+verify("ID Preserved", original.id === rehydrated.id);
+verify("Group ID Preserved", original.groupId === rehydrated.groupId);
+verify("tier match", original.tier === rehydrated.tier);
+console.log(":::ORIGINAL:::", original.tier, ":::REHYDRATED", rehydrated.tier);
