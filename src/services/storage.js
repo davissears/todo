@@ -2,6 +2,7 @@ import Priority from "../model/objects/properties/priority.js";
 import Note from "../model/objects/properties/note.js";
 import Project from "../model/objects/project.js";
 import CheckItem from "../model/objects/checkItem.js";
+import Checklist from "../model/objects/checklist.js";
 
 // NOTE: new storage class goes here
 export default class StorageService {
@@ -115,7 +116,7 @@ export default class StorageService {
   }
 
   serializeCheckItem(obj) {
-    if (obj !== undefined)
+    if (obj !== undefined) {
       return {
         title: obj.title,
         tier: obj.tier,
@@ -125,6 +126,8 @@ export default class StorageService {
         status: obj.status,
         dueDateTime: this.serializeDateObj(obj.dueDateTime),
       };
+    }
+    return;
   }
   deserializeCheckItem(storedObj) {
     const instance = new CheckItem(storedObj.title);
@@ -133,6 +136,35 @@ export default class StorageService {
     instance.description = storedObj.description;
     instance.status = storedObj.status;
 
+    if (storedObj.dueDateTime) {
+      const dueDateTimeData = this.deserializeDateObj(storedObj.dueDateTime);
+      instance.dueDateTime = dueDateTimeData.date;
+    }
+    return instance;
+  }
+
+  serializeChecklist(obj) {
+    if (obj !== undefined) {
+      return {
+        items: obj.items,
+        description: obj.description,
+        dueDateTime: this.serializeDateObj(obj.dueDateTime),
+        groupId: obj.groupId,
+        id: obj.id,
+        status: obj.status,
+        tier: obj.tier,
+        title: obj.title,
+      };
+    }
+    return;
+  }
+  deserializeChecklist(storedObj) {
+    const instance = new Checklist(storedObj.title);
+    instance.description = storedObj.description;
+    instance.dueDateTime = this.deserializeDateObj(storedObj.dueDateTime);
+    instance.groupId = storedObj.groupId;
+    instance.id = storedObj.id;
+    instance.status = storedObj.status;
     if (storedObj.dueDateTime) {
       const dueDateTimeData = this.deserializeDateObj(storedObj.dueDateTime);
       instance.dueDateTime = dueDateTimeData.date;
@@ -191,25 +223,23 @@ export default class StorageService {
 
 // const storage = new StorageService();
 
-// 1. Create a complex Project
-// const original = new Project("Master Task")
-// original.description = "This is a detailed description";
-// original.note = "Critical metadata about the task";
-// original.priority = "EMERGENCY";
-// original.dueDateTime = "2026-12-25";
-
-// 1. create complex checkItem
+// 1. create object
 const storage = new StorageService();
-const project = new Project("!!! PROJECT !!!");
-const original = new CheckItem("!!!SAMPLE CHECK ITEM!!!");
+// const project = new Project("!!! PROJECT !!!");
+// const original = new CheckItem("!!!SAMPLE CHECK ITEM!!!");
+const original = new Checklist("!!!SAMPLE CHECKLIST!!!");
+const originalItem = new CheckItem("!!!SAMPLE CHECKITEM!!!");
+original.items = [originalItem];
+original.note = "Critical metadata about the task";
+original.priority = "EMERGENCY";
 original.description = "::: DESCRIPTION :::";
 original.status = "ACTIVE";
 original.dueDateTime = `2027-02-20T22:07:50.128Z`;
 console.log(":::CHECKITEM:::", original);
 // 2. Perform the Round Trip
-const serialized = storage.serializeCheckItem(original);
+const serialized = storage.serializeChecklist(original);
 console.log(":::SERIALIZED:::CHECKITEM:::", serialized);
-const rehydrated = storage.deserializeCheckItem(serialized);
+const rehydrated = storage.deserializeChecklist(serialized);
 console.log(":::REHYDRATED:::CHECKITEM:::", rehydrated);
 
 console.log("\n--- STARTING ROUND TRIP AUDIT ---");
@@ -234,4 +264,4 @@ verify("Description Match", original.description === rehydrated.description);
 verify("ID Preserved", original.id === rehydrated.id);
 verify("Group ID Preserved", original.groupId === rehydrated.groupId);
 verify("tier match", original.tier === rehydrated.tier);
-console.log(":::ORIGINAL:::", original.tier, ":::REHYDRATED", rehydrated.tier);
+verify("children match", original.items === rehydrated.items);
