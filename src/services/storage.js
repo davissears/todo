@@ -146,7 +146,10 @@ export default class StorageService {
   serializeChecklist(obj) {
     if (obj !== undefined) {
       return {
-        items: obj.items,
+        items: obj.items.map((item) => {
+          if (item.tier === "CHECKITEM") return this.serializeCheckItem(item);
+          return item; // Handle other types as needed
+        }),
         description: obj.description,
         dueDateTime: this.serializeDateObj(obj.dueDateTime),
         groupId: obj.groupId,
@@ -160,6 +163,10 @@ export default class StorageService {
   }
   deserializeChecklist(storedObj) {
     const instance = new Checklist(storedObj.title);
+    instance.items = storedObj.items.map((item) => {
+      if (item.tier === "CHECKITEM") return this.deserializeCheckItem(item);
+      return item; // handle other types as needed
+    });
     instance.description = storedObj.description;
     instance.dueDateTime = this.deserializeDateObj(storedObj.dueDateTime);
     instance.groupId = storedObj.groupId;
@@ -172,8 +179,10 @@ export default class StorageService {
     return instance;
   }
 
-  // ?: will i need a method to call methods for objects in `items`?
-  // EXAMPLE: for items.forEach(obj) => findTier(obj)
+  // ?: does it make sense to write a method to call methods for objects in `items`?
+  // NOTE: PRO: removes multiple lines of code
+  // NOTE: CON: adds complexity & dependancy on other function
+  // EXAMPLE: items.forEach(obj) => findTier(obj)
   // findTier(obj) {
   //  if (obj.tier ===  todo) {
   //    deserializeTodo()
@@ -181,7 +190,7 @@ export default class StorageService {
   // }
   serializeProject(obj) {
     return {
-      items: obj.items,
+      items: this.serializeCheckItem,
       note: this.serializeNoteObj(obj.note),
       priority: this.serializePriorityObj(obj.priority),
       title: obj.title,
@@ -193,7 +202,6 @@ export default class StorageService {
       dueDateTime: this.serializeDateObj(obj.dueDateTime),
     };
   }
-
   deserializeProject(storedObj) {
     const instance = new Project(storedObj.title);
     instance.items = storedObj.items;
@@ -220,9 +228,6 @@ export default class StorageService {
 
 // TEST
 // --- VERIFICATION SUITE ---
-
-// const storage = new StorageService();
-
 // 1. create object
 const storage = new StorageService();
 // const project = new Project("!!! PROJECT !!!");
@@ -235,18 +240,28 @@ original.priority = "EMERGENCY";
 original.description = "::: DESCRIPTION :::";
 original.status = "ACTIVE";
 original.dueDateTime = `2027-02-20T22:07:50.128Z`;
-console.log(":::CHECKITEM:::", original);
+console.log(":::CHECKLIST:::", original);
 // 2. Perform the Round Trip
 const serialized = storage.serializeChecklist(original);
-console.log(":::SERIALIZED:::CHECKITEM:::", serialized);
+console.log(
+  ":::SERIALIZED:::CHECKLIST:::",
+  serialized,
+  ":::SERIALIZED:::ITEMS:::",
+  serialized.items,
+);
 const rehydrated = storage.deserializeChecklist(serialized);
-console.log(":::REHYDRATED:::CHECKITEM:::", rehydrated);
+console.log(
+  ":::REHYDRATED:::CHECKLIST:::",
+  rehydrated,
+  ":::REHYDRATED:::ITEMS:::",
+  rehydrated.items,
+);
 
 console.log("\n--- STARTING ROUND TRIP AUDIT ---");
 
-console.log("\n--- DIAGNOSTIC DATA ---");
-console.log("Original ID:  ", original.id);
-console.log("Rehydrated ID:", rehydrated.id);
+// console.log("\n--- DIAGNOSTIC DATA ---");
+// console.log("Original ID:  ", original.id);
+// console.log("Rehydrated ID:", rehydrated.id);
 // console.log("Note ID:      ", rehydrated.note.id);
 
 // 3. Helper for clean output
@@ -264,4 +279,8 @@ verify("Description Match", original.description === rehydrated.description);
 verify("ID Preserved", original.id === rehydrated.id);
 verify("Group ID Preserved", original.groupId === rehydrated.groupId);
 verify("tier match", original.tier === rehydrated.tier);
-verify("children match", original.items === rehydrated.items);
+verify(
+  "children match",
+  original.items.length === rehydrated.items.length &&
+    original.items[0].id === rehydrated.items[0].id,
+);
