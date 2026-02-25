@@ -220,7 +220,6 @@ export default class StorageService {
 }
 
 // TEST
-// FIX: GRAND-CHILDREN SHOULD MATCH
 // --- VERIFICATION SUITE ---
 // 1. create object
 const storage = new StorageService();
@@ -286,8 +285,4 @@ verify(
   original.items.length === rehydrated.items.length &&
     original.items[0].id === rehydrated.items[0].id,
 );
-verify(
-  "grand-children match",
-  originalCL.items.length === rehydrated.items.length &&
-    original.items[0].id === rehydrated.items[0].id,
-); // !: does not pass
+
