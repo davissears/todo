@@ -11,54 +11,6 @@ export default class StorageService {
     const dateObj = {
       date: new Date(String),
     };
-    // ! TEMPLATES
-
-    const noteObj = {
-      groupId: String,
-      id: String,
-      note: String,
-    };
-
-    const priorityObj = {
-      groupId: String,
-      id: String,
-      priority: String,
-    };
-    const project = {
-      description: String,
-      dueDateTime: dateObj,
-      groupId: String,
-      id: String,
-      note: noteObj || undefined, //test this
-      priority: priorityObj || undefined, //test this
-      status: String,
-      tier: String,
-      title: String,
-    };
-
-    const todo = {
-      description: String,
-      dueDateTime: dateObj,
-      groupId: String,
-      id: String,
-      note: noteObj || undefined, //test this
-      priority: priorityObj || undefined, //test this
-      status: String,
-      tier: String,
-      title: String,
-    };
-
-    const checklist = {
-      description: String,
-      dueDateTime: dateObj,
-      groupId: String,
-      id: String,
-      note: noteObj || undefined, //test this
-      priority: priorityObj || undefined, //test this
-      status: String,
-      tier: String,
-      title: String,
-    };
   }
 
   serializeDateObj(obj) {
@@ -182,12 +134,7 @@ export default class StorageService {
   // ?: does it make sense to write a method to call methods for objects in `items`?
   // NOTE: PRO: removes multiple lines of code
   // NOTE: CON: adds complexity & dependancy on other function
-  // EXAMPLE: items.forEach(obj) => findTier(obj)
-  // findTier(obj) {
-  //  if (obj.tier ===  todo) {
-  //    deserializeTodo()
-  //  }
-  // }
+
   serializeProject(obj) {
     return {
       items: this.serializeCheckItem,
