@@ -153,7 +153,30 @@ export default class StorageService {
     }
   }
 
-  deserializeTodo(storedObj) {}
+  deserializeTodo(storedObj) {
+    const instance = new Todo(storedObj.title);
+    instance.items = storedObj.items.map((item) => {
+      if (item.tier === "CHECKITEM") return this.deserializeCheckItem(item);
+      return item; // handle other types as needed
+    });
+    if (storedObj.note !== undefined) {
+      instance.note = this.deserializeNoteObj(storedObj);
+    }
+    if (storedObj.priority !== undefined) {
+      instance.priority = this.deserializePriorityObj(storedObj.priority);
+    }
+    instance.description = storedObj.description;
+    instance.dueDateTime = this.deserializeDateObj(storedObj.dueDateTime);
+    instance.groupId = storedObj.groupId;
+    instance.id = storedObj.id;
+    instance.status = storedObj.status;
+    if (storedObj.dueDateTime !== undefined) {
+      const dueDateTimeData = this.deserializeDateObj(storedObj.dueDateTime);
+      instance.dueDateTime = dueDateTimeData.date;
+    }
+    return instance;
+  }
+
   // ?: does it make sense to write a method to call methods for objects in `items`?
   // NOTE: PRO: removes multiple lines of code
   // NOTE: CON: adds complexity & dependancy on other function
@@ -197,6 +220,7 @@ export default class StorageService {
 }
 
 // TEST
+// FIX: GRAND-CHILDREN SHOULD MATCH
 // --- VERIFICATION SUITE ---
 // 1. create object
 const storage = new StorageService();
@@ -207,7 +231,7 @@ const originalCL = new Checklist("!!!SAMPLE CHECEKLIST!!!");
 originalCL.description = "is a checklist";
 originalCL.status = "ACTIVE";
 originalCL.dueDateTime = `2027-02-20T22:07:50.128Z`;
-originalCL.priority = "EMERGENCY";  
+originalCL.priority = "EMERGENCY";
 original.items = [originalCL];
 const item1 = new CheckItem("item1");
 const item2 = new CheckItem("item2");
@@ -266,4 +290,4 @@ verify(
   "grand-children match",
   originalCL.items.length === rehydrated.items.length &&
     original.items[0].id === rehydrated.items[0].id,
-);
+); // !: does not pass
