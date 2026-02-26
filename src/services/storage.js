@@ -9,9 +9,6 @@ import Todo from "../model/objects/todo.js";
 export default class StorageService {
   constructor(key) {
     this.key = key;
-    const dateObj = {
-      date: new Date(String),
-    };
   }
 
   serializeDateObj(obj) {
@@ -28,9 +25,11 @@ export default class StorageService {
     return;
   }
   deserializeDateObj(storedObj) {
-    return {
-      date: new Date(storedObj.date),
-    };
+    if (storedObj !== undefined)
+      return {
+        date: new Date(storedObj.date),
+      };
+    return;
   }
 
   serializePriorityObj(obj) {
@@ -45,11 +44,13 @@ export default class StorageService {
     return;
   }
   deserializePriorityObj(storedObj) {
-    //create instance
-    const instance = new Priority(storedObj.priority, storedObj.groupId);
-    //overwrite id
-    instance.id = storedObj.id;
-    return instance;
+    if (storedObj !== undefined) {
+      const instance = new Priority(storedObj.priority, storedObj.groupId);
+      //overwrite id
+      instance.id = storedObj.id;
+      return instance;
+    }
+    return;
   }
 
   serializeNoteObj(obj) {
@@ -63,9 +64,12 @@ export default class StorageService {
     return;
   }
   deserializeNoteObj(storedObj) {
-    const instance = new Note(storedObj.note, storedObj.groupId);
-    instance.id = storedObj.id;
-    return instance;
+    if (storedObj !== undefined) {
+      const instance = new Note(storedObj.note, storedObj.groupId);
+      instance.id = storedObj.id;
+      return instance;
+    }
+    return;
   }
 
   serializeCheckItem(obj) {
@@ -83,17 +87,20 @@ export default class StorageService {
     return;
   }
   deserializeCheckItem(storedObj) {
-    const instance = new CheckItem(storedObj.title);
-    instance.id = storedObj.id;
-    instance.groupId = storedObj.groupId;
-    instance.description = storedObj.description;
-    instance.status = storedObj.status;
+    if (storedObj !== undefined) {
+      const instance = new CheckItem(storedObj.title);
+      instance.id = storedObj.id;
+      instance.groupId = storedObj.groupId;
+      instance.description = storedObj.description;
+      instance.status = storedObj.status;
 
-    if (storedObj.dueDateTime) {
-      const dueDateTimeData = this.deserializeDateObj(storedObj.dueDateTime);
-      instance.dueDateTime = dueDateTimeData.date;
+      if (storedObj.dueDateTime) {
+        const dueDateTimeData = this.deserializeDateObj(storedObj.dueDateTime);
+        instance.dueDateTime = dueDateTimeData.date;
+      }
+      return instance;
     }
-    return instance;
+    return;
   }
 
   serializeChecklist(obj) {
@@ -115,21 +122,24 @@ export default class StorageService {
     return;
   }
   deserializeChecklist(storedObj) {
-    const instance = new Checklist(storedObj.title);
-    instance.items = storedObj.items.map((item) => {
-      if (item.tier === "CHECKITEM") return this.deserializeCheckItem(item);
-      return item; // handle other types as needed
-    });
-    instance.description = storedObj.description;
-    instance.dueDateTime = this.deserializeDateObj(storedObj.dueDateTime);
-    instance.groupId = storedObj.groupId;
-    instance.id = storedObj.id;
-    instance.status = storedObj.status;
-    if (storedObj.dueDateTime) {
-      const dueDateTimeData = this.deserializeDateObj(storedObj.dueDateTime);
-      instance.dueDateTime = dueDateTimeData.date;
+    if (storedObj !== undefined) {
+      const instance = new Checklist(storedObj.title);
+      instance.items = storedObj.items.map((item) => {
+        if (item.tier === "CHECKITEM") return this.deserializeCheckItem(item);
+        return item; // handle other types as needed
+      });
+      instance.description = storedObj.description;
+      instance.dueDateTime = this.deserializeDateObj(storedObj.dueDateTime);
+      instance.groupId = storedObj.groupId;
+      instance.id = storedObj.id;
+      instance.status = storedObj.status;
+      if (storedObj.dueDateTime) {
+        const dueDateTimeData = this.deserializeDateObj(storedObj.dueDateTime);
+        instance.dueDateTime = dueDateTimeData.date;
+      }
+      return instance;
     }
-    return instance;
+    return;
   }
 
   serializeTodo(obj) {
@@ -156,8 +166,8 @@ export default class StorageService {
   deserializeTodo(storedObj) {
     const instance = new Todo(storedObj.title);
     instance.items = storedObj.items.map((item) => {
-      if (item.tier === "CHECKITEM") return this.deserializeCheckItem(item);
-      return item; // handle other types as needed
+      if (item.tier === "CHECKLIST") return this.deserializeChecklist(item);
+      return item;
     });
     if (storedObj.note !== undefined) {
       instance.note = this.deserializeNoteObj(storedObj);
@@ -182,36 +192,46 @@ export default class StorageService {
   // NOTE: CON: adds complexity & dependancy on other function
 
   serializeProject(obj) {
-    return {
-      items: this.serializeCheckItem,
-      note: this.serializeNoteObj(obj.note),
-      priority: this.serializePriorityObj(obj.priority),
-      title: obj.title,
-      tier: obj.tier,
-      id: obj.id,
-      groupId: obj.groupId,
-      description: obj.description,
-      status: obj.status,
-      dueDateTime: this.serializeDateObj(obj.dueDateTime),
-    };
+    if (obj !== undefined) {
+      return {
+        items: obj.items.map((item) => {
+          if (item.tier === "TODO") return this.serializeTodo(item);
+          if (item.tier === "CHECKLIST") return this.serializeChecklist(item);
+          return item;
+        }),
+        note: this.serializeNoteObj(obj.note),
+        priority: this.serializePriorityObj(obj.priority),
+        title: obj.title,
+        tier: obj.tier,
+        id: obj.id,
+        groupId: obj.groupId,
+        description: obj.description,
+        status: obj.status,
+        dueDateTime: this.serializeDateObj(obj.dueDateTime),
+      };
+    }
   }
   deserializeProject(storedObj) {
     const instance = new Project(storedObj.title);
-    instance.items = storedObj.items;
+    instance.items = storedObj.items.map((item) => {
+      if (item.tier === "TODO") return this.deserializeTodo(item);
+      if (item.tier === "CHECKLIST") return this.deserializeChecklist(item);
+      return item;
+    });
     instance.title = storedObj.title;
     instance.id = storedObj.id;
     instance.groupId = storedObj.groupId;
     instance.description = storedObj.description;
     instance.status = storedObj.status;
 
-    if (storedObj.note) {
+    if (storedObj.note !== undefined) {
       instance.note = this.deserializeNoteObj(storedObj.note);
     }
 
-    if (storedObj.priority) {
+    if (storedObj.priority !== undefined) {
       instance.priority = this.deserializePriorityObj(storedObj.priority);
     }
-    if (storedObj.dueDateTime) {
+    if (storedObj.dueDateTime !== undefined) {
       const dueDateTimeData = this.deserializeDateObj(storedObj.dueDateTime);
       instance.dueDateTime = dueDateTimeData.date;
     }
@@ -223,15 +243,14 @@ export default class StorageService {
 // --- VERIFICATION SUITE ---
 // 1. create object
 const storage = new StorageService();
-// const project = new Project("!!! PROJECT !!!");
-// const original = new CheckItem("!!!SAMPLE CHECK ITEM!!!");
-const original = new Todo("!!!SAMPLE TODO!!!");
+const original = new Project("!!! PROJECT !!!");
+const originalT = new Todo("!!!SAMPLE TODO!!!");
 const originalCL = new Checklist("!!!SAMPLE CHECEKLIST!!!");
 originalCL.description = "is a checklist";
 originalCL.status = "ACTIVE";
 originalCL.dueDateTime = `2027-02-20T22:07:50.128Z`;
 originalCL.priority = "EMERGENCY";
-original.items = [originalCL];
+original.items = [originalCL, originalT];
 const item1 = new CheckItem("item1");
 const item2 = new CheckItem("item2");
 const item3 = new CheckItem("item3");
@@ -243,14 +262,14 @@ original.status = "ACTIVE";
 original.dueDateTime = `2027-02-20T22:07:50.128Z`;
 console.log(":::PARENT:::", original);
 // 2. Perform the Round Trip
-const serialized = storage.serializeTodo(original);
+const serialized = storage.serializeProject(original);
 console.log(
   ":::SERIALIZED:::PARENT:::",
   serialized,
   ":::SERIALIZED:::CHILD:::",
   serialized.items,
 );
-const rehydrated = storage.deserializeTodo(serialized);
+const rehydrated = storage.deserializeProject(serialized);
 console.log(
   ":::REHYDRATED:::PARENT:::",
   rehydrated,
@@ -260,10 +279,9 @@ console.log(
 
 console.log("\n--- STARTING ROUND TRIP AUDIT ---");
 
-// console.log("\n--- DIAGNOSTIC DATA ---");
-// console.log("Original ID:  ", original.id);
-// console.log("Rehydrated ID:", rehydrated.id);
-// console.log("Note ID:      ", rehydrated.note.id);
+console.log("\n--- DIAGNOSTIC DATA ---");
+console.log("Original ID:  ", original.id);
+console.log("Rehydrated ID:", rehydrated.id);
 
 // 3. Helper for clean output
 function verify(label, result) {
@@ -285,4 +303,3 @@ verify(
   original.items.length === rehydrated.items.length &&
     original.items[0].id === rehydrated.items[0].id,
 );
-
