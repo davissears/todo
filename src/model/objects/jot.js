@@ -67,7 +67,20 @@ export default class Jot {
     return this.#dueDateTime;
   }
 
-  set dueDateTime(date) {
-    this.#dueDateTime = { date: new Date(date) };
+  set dueDateTime(value) {
+    if (value === undefined || value === null) {
+      this.#dueDateTime = undefined;
+      return;
+    }
+
+    // If we're passing in our own wrapped object { date: Date }, extract the date
+    const dateValue = value.date || value;
+    const newDate = new Date(dateValue);
+
+    if (!isNaN(newDate.getTime())) {
+      this.#dueDateTime = { date: newDate };
+    } else {
+      this.#dueDateTime = undefined;
+    }
   }
 }
