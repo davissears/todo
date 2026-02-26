@@ -65,11 +65,11 @@ export default class Model {
 
   // TODO: write add prop function
   // NOTE: perhaps one method should be should be able to set any prop
-  addProp(propName, propValue) {
-    this[propName] = propValue;
+  addProp(propName, propValue, obj) {
+    obj[propName] = propValue;
     this.save();
   }
 }
 // TEST
 const model = new Model();
-// console.log(model);
+console.log(model);
