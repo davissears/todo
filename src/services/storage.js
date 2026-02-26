@@ -12,6 +12,9 @@ export default class StorageService {
   }
 
   save(projects) {
+    // check if we are in a browser environment
+    if (typeof localStorage === "undefined") return;
+
     const serialized = projects.map((project) =>
       this.serializeProject(project),
     );
@@ -19,29 +22,30 @@ export default class StorageService {
   }
 
   load() {
+    // return an empty array if localStorage isn't available
+    if (typeof localStorage === "undefined") return [];
+
     const data = JSON.parse(localStorage.getItem(this.key) || "[]");
     return data.map((project) => this.deserializeProject(project));
   }
 
   serializeDateObj(obj) {
-    // TEST: what is obj?
-    console.log(
-      ":::LOGSTART:::serializeDateObj:::OBJ:::obj-is:",
-      obj,
-      ":::LOGEND:::",
-    );
-    if (obj !== undefined)
+    if (obj && obj.date instanceof Date && !isNaN(obj.date.getTime())) {
       return {
         date: obj.date.toISOString(),
       };
-    return;
+    }
+    return undefined;
   }
+
   deserializeDateObj(storedObj) {
-    if (storedObj !== undefined)
-      return {
-        date: new Date(storedObj.date),
-      };
-    return;
+    if (storedObj && storedObj.date) {
+      const date = new Date(storedObj.date);
+      if (!isNaN(date.getTime())) {
+        return { date };
+      }
+    }
+    return undefined;
   }
 
   serializePriorityObj(obj) {
@@ -108,7 +112,9 @@ export default class StorageService {
 
       if (storedObj.dueDateTime) {
         const dueDateTimeData = this.deserializeDateObj(storedObj.dueDateTime);
-        instance.dueDateTime = dueDateTimeData.date;
+        if (dueDateTimeData) {
+          instance.dueDateTime = dueDateTimeData.date;
+        }
       }
       return instance;
     }
@@ -141,13 +147,14 @@ export default class StorageService {
         return item; // handle other types as needed
       });
       instance.description = storedObj.description;
-      instance.dueDateTime = this.deserializeDateObj(storedObj.dueDateTime);
       instance.groupId = storedObj.groupId;
       instance.id = storedObj.id;
       instance.status = storedObj.status;
       if (storedObj.dueDateTime) {
         const dueDateTimeData = this.deserializeDateObj(storedObj.dueDateTime);
-        instance.dueDateTime = dueDateTimeData.date;
+        if (dueDateTimeData) {
+          instance.dueDateTime = dueDateTimeData.date;
+        }
       }
       return instance;
     }
@@ -187,13 +194,15 @@ export default class StorageService {
       instance.priority = this.deserializePriorityObj(storedObj.priority);
     }
     instance.description = storedObj.description;
-    instance.dueDateTime = this.deserializeDateObj(storedObj.dueDateTime);
     instance.groupId = storedObj.groupId;
     instance.id = storedObj.id;
     instance.status = storedObj.status;
+
     if (storedObj.dueDateTime !== undefined) {
       const dueDateTimeData = this.deserializeDateObj(storedObj.dueDateTime);
-      instance.dueDateTime = dueDateTimeData.date;
+      if (dueDateTimeData) {
+        instance.dueDateTime = dueDateTimeData.date;
+      }
     }
     return instance;
   }
