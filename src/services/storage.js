@@ -11,6 +11,18 @@ export default class StorageService {
     this.key = key;
   }
 
+  save(projects) {
+    const serialized = projects.map((project) =>
+      this.serializeProject(project),
+    );
+    localStorage.setItem(this.key, JSON.stringify(serialized));
+  }
+
+  load() {
+    const data = JSON.parse(localStorage.getItem(this.key) || "[]");
+    return data.map((project) => this.deserializeProject(project));
+  }
+
   serializeDateObj(obj) {
     // TEST: what is obj?
     console.log(
@@ -150,7 +162,6 @@ export default class StorageService {
           return item;
         }),
         note: this.serializeNoteObj(obj.note),
-        note: this.serializeNoteObj(obj.note),
         priority: this.serializePriorityObj(obj.priority),
         title: obj.title,
         tier: obj.tier,
@@ -170,7 +181,7 @@ export default class StorageService {
       return item;
     });
     if (storedObj.note !== undefined) {
-      instance.note = this.deserializeNoteObj(storedObj);
+      instance.note = this.deserializeNoteObj(storedObj.note);
     }
     if (storedObj.priority !== undefined) {
       instance.priority = this.deserializePriorityObj(storedObj.priority);
@@ -239,67 +250,67 @@ export default class StorageService {
   }
 }
 
-// TEST
-// --- VERIFICATION SUITE ---
-// 1. create object
-const storage = new StorageService();
-const original = new Project("!!! PROJECT !!!");
-const originalT = new Todo("!!!SAMPLE TODO!!!");
-const originalCL = new Checklist("!!!SAMPLE CHECEKLIST!!!");
-originalCL.description = "is a checklist";
-originalCL.status = "ACTIVE";
-originalCL.dueDateTime = `2027-02-20T22:07:50.128Z`;
-originalCL.priority = "EMERGENCY";
-original.items = [originalCL, originalT];
-const item1 = new CheckItem("item1");
-const item2 = new CheckItem("item2");
-const item3 = new CheckItem("item3");
-originalCL.items = [item1, item2, item3];
-original.note = "Critical metadata about the task";
-original.priority = "EMERGENCY";
-original.description = "::: DESCRIPTION :::";
-original.status = "ACTIVE";
-original.dueDateTime = `2027-02-20T22:07:50.128Z`;
-console.log(":::PARENT:::", original);
-// 2. Perform the Round Trip
-const serialized = storage.serializeProject(original);
-console.log(
-  ":::SERIALIZED:::PARENT:::",
-  serialized,
-  ":::SERIALIZED:::CHILD:::",
-  serialized.items,
-);
-const rehydrated = storage.deserializeProject(serialized);
-console.log(
-  ":::REHYDRATED:::PARENT:::",
-  rehydrated,
-  ":::REHYDRATED:::CHILD:::",
-  rehydrated.items,
-);
+// // TEST
+// // --- VERIFICATION SUITE ---
+// // 1. create object
+// const storage = new StorageService();
+// const original = new Project("!!! PROJECT !!!");
+// const originalT = new Todo("!!!SAMPLE TODO!!!");
+// const originalCL = new Checklist("!!!SAMPLE CHECEKLIST!!!");
+// originalCL.description = "is a checklist";
+// originalCL.status = "ACTIVE";
+// originalCL.dueDateTime = `2027-02-20T22:07:50.128Z`;
+// originalCL.priority = "EMERGENCY";
+// original.items = [originalCL, originalT];
+// const item1 = new CheckItem("item1");
+// const item2 = new CheckItem("item2");
+// const item3 = new CheckItem("item3");
+// originalCL.items = [item1, item2, item3];
+// original.note = "Critical metadata about the task";
+// original.priority = "EMERGENCY";
+// original.description = "::: DESCRIPTION :::";
+// original.status = "ACTIVE";
+// original.dueDateTime = `2027-02-20T22:07:50.128Z`;
+// console.log(":::PARENT:::", original);
+// // 2. Perform the Round Trip
+// const serialized = storage.serializeProject(original);
+// console.log(
+//   ":::SERIALIZED:::PARENT:::",
+//   serialized,
+//   ":::SERIALIZED:::CHILD:::",
+//   serialized.items,
+// );
+// const rehydrated = storage.deserializeProject(serialized);
+// console.log(
+//   ":::REHYDRATED:::PARENT:::",
+//   rehydrated,
+//   ":::REHYDRATED:::CHILD:::",
+//   rehydrated.items,
+// );
 
-console.log("\n--- STARTING ROUND TRIP AUDIT ---");
+// console.log("\n--- STARTING ROUND TRIP AUDIT ---");
 
-console.log("\n--- DIAGNOSTIC DATA ---");
-console.log("Original ID:  ", original.id);
-console.log("Rehydrated ID:", rehydrated.id);
+// console.log("\n--- DIAGNOSTIC DATA ---");
+// console.log("Original ID:  ", original.id);
+// console.log("Rehydrated ID:", rehydrated.id);
 
-// 3. Helper for clean output
-function verify(label, result) {
-  console.log(`${result ? "✅ PASS" : "❌ FAIL"} | ${label}`);
-}
-// Date Object (comparing millisecond timestamps)
-verify(
-  "Date Match",
-  original.dueDateTime.date.getTime() === rehydrated.dueDateTime.date.getTime(),
-);
-// Core Properties
-verify("Title Match", original.title === rehydrated.title);
-verify("Description Match", original.description === rehydrated.description);
-verify("ID Preserved", original.id === rehydrated.id);
-verify("Group ID Preserved", original.groupId === rehydrated.groupId);
-verify("tier match", original.tier === rehydrated.tier);
-verify(
-  "children match",
-  original.items.length === rehydrated.items.length &&
-    original.items[0].id === rehydrated.items[0].id,
-);
+// // 3. Helper for clean output
+// function verify(label, result) {
+//   console.log(`${result ? "✅ PASS" : "❌ FAIL"} | ${label}`);
+// }
+// // Date Object (comparing millisecond timestamps)
+// verify(
+//   "Date Match",
+//   original.dueDateTime.date.getTime() === rehydrated.dueDateTime.date.getTime(),
+// );
+// // Core Properties
+// verify("Title Match", original.title === rehydrated.title);
+// verify("Description Match", original.description === rehydrated.description);
+// verify("ID Preserved", original.id === rehydrated.id);
+// verify("Group ID Preserved", original.groupId === rehydrated.groupId);
+// verify("tier match", original.tier === rehydrated.tier);
+// verify(
+//   "children match",
+//   original.items.length === rehydrated.items.length &&
+//     original.items[0].id === rehydrated.items[0].id,
+// );

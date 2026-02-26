@@ -2,13 +2,13 @@ import StorageService from "../services/storage.js";
 import Checklist from "./objects/checklist.js";
 import Project from "./objects/project.js";
 import Todo from "./objects/todo.js";
-// import Checklist from "./objects/checklist.js";
+import CheckItem from "./objects/checkItem.js";
 
 export default class Model {
   constructor() {
     this.storage = new StorageService("todo-app-data");
     this.projects = [];
-    // this.load();
+    this.load();
   }
 
   // FIX: implement functional serialize/deserialize functions
@@ -32,29 +32,44 @@ export default class Model {
   //     console.error("Error saving to localStorage", e);
   //   }
   // }
+  //
+
+  save() {
+    this.storage.save(this.projects);
+  }
+
+  load() {
+    this.projects = this.storage.load();
+  }
   createProject(title) {
     const project = new Project(title);
     this.projects.push(project);
-    // this.save();
+    this.save();
   }
   // TODO: CRUD for Project, Todo, Checklist, CheckItem
   // ?: can a single create function init all objects?
   createChild(title, tier, parent) {
+    let child;
     if (tier === "TODO") {
-      return (child = new Todo(title));
+      child = new Todo(title);
     } else if (tier === "CHECKLIST") {
-      return (child = new Checklist(title));
+      child = new Checklist(title);
     } else if (tier === "CHECKITEM") {
-      return (child = new CheckItem(title));
+      child = new CheckItem(title);
     }
 
     child.groupId = parent.groupId;
     parent.items.push(child);
+    this.save();
   }
 
   // TODO: write add prop function
   // NOTE: perhaps one method should be should be able to set any prop
+  addProp(propName, propValue) {
+    this[propName] = propValue;
+    this.save();
+  }
 }
 // TEST
-// const model = new Model();
+const model = new Model();
 // console.log(model);
