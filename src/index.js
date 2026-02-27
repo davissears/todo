@@ -17,8 +17,24 @@ class Controller {
   }
 }
 
-// init app: creates new instance of controller
-//    accepts a new instance of Model and View
-const app = new Controller(new Model(), new View());
+function init() {
+  const rootElement = document.querySelector("#root");
+  if (rootElement) {
+    rootElement.innerHTML = ""; // Clear existing content for HMR
+  }
 
-window.app = app;
+  // init app: creates new instance of controller
+  //    accepts a new instance of Model and View
+  const app = new Controller(new Model(), new View(rootElement));
+  window.app = app;
+}
+
+init();
+
+// HMR Support
+if (import.meta.hot) {
+  import.meta.hot.accept(() => {
+    console.log("HMR: Reloading application...");
+    init();
+  });
+}
