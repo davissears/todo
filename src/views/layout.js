@@ -1,21 +1,29 @@
 import Header from "./components/header.js";
+import Sidebar from "./components/sidebar.js";
+import Whiteboard from "./components/whiteboard.js";
 
 export default class Layout {
   constructor(rootElement) {
     this.root = rootElement;
 
-    if (root) {
+    if (this.root) {
+      // 2. Initialize and append Header
       const headerTag = document.createElement("header");
-      root.append(headerTag);
-      const header = new Header(headerTag);
-      headerTag.append(header.element);
+      this.root.append(headerTag);
+      this.header = new Header(headerTag);
+      headerTag.append(this.header.element);
+
+      // 3. Initialize and append Sidebar
+      const sidebarTag = document.createElement("aside"); // Using semantic <aside>
+      this.root.append(sidebarTag);
+      this.sidebar = new Sidebar(sidebarTag);
+      sidebarTag.append(this.sidebar.element);
+
+      // 3. Whiteboard (Main Content)
+      const mainTag = document.createElement("main");
+      this.root.append(mainTag);
+      this.whiteboard = new Whiteboard(mainTag);
+      mainTag.append(this.whiteboard.element);
     }
-    // init components
-    this.header = new Header();
-    // this.sidebar = new Sidebar();
-    // this.whiteboard = new Whiteboard();
-    // assemble layout
-    // this.root.append(this.header.element);
-    // TODO: append component class objects once written
   }
 }
