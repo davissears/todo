@@ -7,17 +7,17 @@ export default class Header {
     // header
     this.element.className = "header";
     // header-Container
-    this.headerContainer = document.createElement("div");
-    this.headerContainer.className = "header-container";
+    this.headerContent = document.createElement("div");
+    this.headerContent.className = "header-content";
     // title
     this.logo = document.createElement("h1");
     this.logo.textContent = "Jot";
     // logo-Container
     this.logoContainer = document.createElement("div");
 
-    // append()
-    this.element.append(this.headerContainer);
-    this.headerContainer.append(this.logoContainer);
+    // append
+    this.element.append(this.headerContent);
+    this.headerContent.append(this.logoContainer);
     this.logoContainer.append(this.logo);
   }
 }
