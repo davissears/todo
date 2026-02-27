@@ -4,26 +4,31 @@ import Whiteboard from "./components/whiteboard.js";
 
 export default class Layout {
   constructor(rootElement) {
+    if (!rootElement) {
+      throw new Error("Layout requires a valid root DOM element to mount.");
+    }
+    
     this.root = rootElement;
 
-    if (this.root) {
-      // 2. Initialize and append Header
-      const headerTag = document.createElement("header");
-      this.root.append(headerTag);
-      this.header = new Header(headerTag);
-      headerTag.append(this.header.element);
+    // create a DocumentFragment to batch our DOM updates
+    const fragment = document.createDocumentFragment();
 
-      // 3. Initialize and append Sidebar
-      const sidebarTag = document.createElement("aside"); // Using semantic <aside>
-      this.root.append(sidebarTag);
-      this.sidebar = new Sidebar(sidebarTag);
-      sidebarTag.append(this.sidebar.element);
+    // init Header
+    const headerTag = document.createElement("header");
+    this.header = new Header(headerTag); 
+    fragment.append(headerTag);
 
-      // 3. Whiteboard (Main Content)
-      const mainTag = document.createElement("main");
-      this.root.append(mainTag);
-      this.whiteboard = new Whiteboard(mainTag);
-      mainTag.append(this.whiteboard.element);
-    }
+    // init Sidebar
+    const sidebarTag = document.createElement("aside");
+    this.sidebar = new Sidebar(sidebarTag); 
+    fragment.append(sidebarTag);
+
+    // init Whiteboard (Main Content)
+    const mainTag = document.createElement("main");
+    this.whiteboard = new Whiteboard(mainTag);
+    fragment.append(mainTag);
+
+    // append the fully constructed layout to the live DOM in one go
+    this.root.append(fragment);
   }
 }
