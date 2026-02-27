@@ -1,20 +1,19 @@
 import { serve } from "bun";
+import index from "./index.html"; // Bun handles this import
 
-const server = serve({
-	development: true,
-	async fetch(req) {
-		const url = new URL(req.url);
-		if (url.pathname === "/")
-			return new Response(Bun.file("./index.html"), {
-				headers: { "Content-Type": "text/html" },
-			});
-
-		const file = Bun.file(`.${url.pathname}`);
-		if (!(await file.exists())) {
-			return new Response("Not Found", { status: 404 });
-		}
-		return new Response(file);
-	},
+serve({
+  routes: {
+    "/": index,
+  },
+  development: {
+    hmr: true,
+  },
+  // Keep your fetch handler if you need to serve other static assets manually,
+  // or use the new 'static' feature in newer Bun versions.
+  async fetch(req, server) {
+    if (server.upgrade(req)) return;
+    return new Response("Not Found", { status: 404 });
+  },
 });
 
-console.log(`Listening on ${server.url}`);
+// console.log(`Listening on ${server.url}`);

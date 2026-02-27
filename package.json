@@ -11,7 +11,7 @@
     "typescript": "^5"
   },
   "scripts": {
-    "dev": "bun run ./dev.ts",
+    "dev": "bun run ./dev.ts --hot",
     "build": "bun ./build.ts",
     "test:dx": "bun run ./tests/run_dx_suite.ts",
     "test:tui": "bun run tests/tui_dx_tools/tui_runner.ts",
