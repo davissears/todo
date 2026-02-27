@@ -1,12 +1,18 @@
 export default class Whiteboard {
   constructor(rootElement) {
-    this.root = rootElement;
-    this.element = document.createElement("div");
-    this.element.className = "whiteboard";
+    if (!rootElement) {
+      throw new Error("Whiteboard requires a root element to mount.");
+    }
 
+    // Use the <main> tag passed from Layout
+    this.root = rootElement;
+    this.root.classList.add("whiteboard");
+
+    // Create the title
     this.title = document.createElement("h2");
     this.title.textContent = "Your Projects";
     
-    this.element.append(this.title);
+    // Append directly to the root
+    this.root.append(this.title);
   }
 }

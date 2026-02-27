@@ -1,27 +1,25 @@
 export default class Sidebar {
   constructor(rootElement) {
-    // root of this element
+    if (!rootElement) {
+      throw new Error("Sidebar requires a root element to mount.");
+    }
+
+    // 1. Use the <aside> tag passed from Layout
     this.root = rootElement;
-    // container for the entire component
-    this.element = document.createElement("div");
-    this.element.className = "sidebar";
-    //
-    this.sidebarContent = document.createElement("div");
-    this.sidebarContent.className = "sidebar-content";
-    // buttons container
+    this.root.classList.add("sidebar"); 
+
+    // 2. Create the buttons container
+    // We can skip the 'sidebar-content' div entirely and just use the root!
     this.sideButtonsContainer = document.createElement("div");
     this.sideButtonsContainer.className = "side-buttons-container";
-    // buttons
+
+    // 3. Create the button (Fixed class name to singular)
     this.addProjectButton = document.createElement("button");
-    this.addProjectButton.className = "side-buttons";
+    this.addProjectButton.className = "side-button"; 
     this.addProjectButton.textContent = "Start Project";
 
-    // append
-    //  sidebar content
-    this.element.append(this.sidebarContent);
-    //  buttons container
-    this.sidebarContent.append(this.sideButtonsContainer);
-    // buttons
+    // 4. Append directly to the root
     this.sideButtonsContainer.append(this.addProjectButton);
+    this.root.append(this.sideButtonsContainer);
   }
 }

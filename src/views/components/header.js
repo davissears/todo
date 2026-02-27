@@ -1,23 +1,23 @@
-export default class Header {
+export default class Header { // Fixed capitalization
   constructor(rootElement) {
-    // root of this element
+    if (!rootElement) {
+      throw new Error("Header requires a root element to mount.");
+    }
+    
+    //  use the <header> tag passed in from Layout
     this.root = rootElement;
-    // container for entire component
-    this.element = document.createElement("div");
-    // header
-    this.element.className = "header";
-    // header-Container
+    this.root.classList.add("header"); // Style the root directly
+
+    // create the content wrapper
     this.headerContent = document.createElement("div");
     this.headerContent.className = "header-content";
-    // title
+
+    // create the logo
     this.logo = document.createElement("h1");
     this.logo.textContent = "Jot";
-    // logo-Container
-    this.logoContainer = document.createElement("div");
 
-    // append
-    this.element.append(this.headerContent);
-    this.headerContent.append(this.logoContainer);
-    this.logoContainer.append(this.logo);
+    // append everything directly into the provided root
+    this.headerContent.append(this.logo);
+    this.root.append(this.headerContent);
   }
 }
