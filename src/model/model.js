@@ -11,28 +11,7 @@ export default class Model {
     this.load();
   }
 
-  // FIX: implement functional serialize/deserialize functions
   // NOTE: `save()` & `load()` serve to handle object init ONLY!
-  // load() {
-  //   const data = this.storage.load();
-  //   if (data) {
-  //     this.projects = data.map((item) => {
-  //       let instance;
-  //       if ((item.tier = "PROJECT")) {
-  //         instance = new Project(item.title);
-  //       }
-  //     });
-  //   }
-  // }
-
-  // save() {
-  //   try {
-  //     this.storage.save(this.projects);
-  //   } catch (e) {
-  //     console.error("Error saving to localStorage", e);
-  //   }
-  // }
-  //
 
   save() {
     this.storage.save(this.projects);
@@ -46,8 +25,7 @@ export default class Model {
     this.projects.push(project);
     this.save();
   }
-  // TODO: CRUD for Project, Todo, Checklist, CheckItem
-  // ?: can a single create function init all objects?
+
   createChild(title, tier, parent) {
     let child;
     if (tier === "TODO") {
@@ -63,7 +41,6 @@ export default class Model {
     this.save();
   }
 
-  // TODO: write add prop function
   // NOTE: perhaps one method should be should be able to set any prop
   addProp(propName, propValue, obj) {
     obj[propName] = propValue;
@@ -71,5 +48,3 @@ export default class Model {
   }
 }
 // TEST
-const model = new Model();
-console.log(model);
