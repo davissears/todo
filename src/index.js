@@ -10,14 +10,24 @@ class Controller {
     this.view = view;
 
     // during initialization, we perform the first 'surgical' render.
-    // by calling updateprojectlist, we populate the sidebar using 
+    // by calling updateprojectlist, we populate the sidebar using
     // the stable shell already created by the view's layout.
     this.init();
+    // const cPB = view.layout.sidebar.addProjectButton;
+    // cPB.addEventListener("click", this.CreateProjectClick);
+    this.view.bindCreateProject(this.CreateProjectClick);
   }
+
+  //listens for 'new project' button click
+  CreateProjectClick = () => {
+    // console.log("heard");
+    // console.log(this);
+    // this.model.createProject()
+  };
 
   // initial application data synchronization between model and view.
   init() {
-    // we fetch the current projects from the model and tell the 
+    // we fetch the current projects from the model and tell the
     // view facade to update the project navigation in the sidebar.
     this.view.updateProjectList(this.model.projects);
     console.log("controller initialized. application data synced.");
@@ -28,7 +38,7 @@ class Controller {
 function initApp() {
   const rootElement = document.querySelector("#root");
   if (rootElement) {
-    // clearing existing content is only done once at the very start 
+    // clearing existing content is only done once at the very start
     // to handle hot module replacement (hmr) and initial setup.
     rootElement.innerHTML = "";
   }
@@ -36,7 +46,7 @@ function initApp() {
   // a new instance of the application with its model, view, and controller.
   // the controller takes responsibility for linking the model and view data.
   const app = new Controller(new Model(), new View(rootElement));
-  
+
   // exposing the app globally can be useful for debugging in the console.
   window.app = app;
 }

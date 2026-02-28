@@ -11,8 +11,12 @@ export default class View {
     this.layout = new Layout(this.root);
   }
 
+  bindCreateProject(handler) {
+    this.layout.sidebar.addProjectButton.addEventListener("click", handler);
+  }
+  
   // this facade method now directs updates to the whiteboard's project list.
-  // since navigation is localized to the main section, we avoid cluttering 
+  // since navigation is localized to the main section, we avoid cluttering
   // the sidebar and maintain a focused, 'one-level-at-a-time' interface.
   updateProjectList(projects) {
     // we now target the whiteboard specifically for project navigation.
