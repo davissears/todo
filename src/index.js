@@ -13,14 +13,13 @@ class Controller {
     // by calling updateprojectlist, we populate the sidebar using
     // the stable shell already created by the view's layout.
     this.init();
-    // const cPB = view.layout.sidebar.addProjectButton;
-    // cPB.addEventListener("click", this.CreateProjectClick);
+
     this.view.bindCreateProject(this.CreateProjectClick);
   }
 
   //listens for 'new project' button click
   CreateProjectClick = () => {
-    // console.log("heard");
+    console.log("heard");
     // console.log(this);
     // this.model.createProject()
   };
