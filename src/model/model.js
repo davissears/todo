@@ -12,7 +12,6 @@ export default class Model {
   }
 
   // NOTE: `save()` & `load()` serve to handle object init ONLY!
-
   save() {
     this.storage.save(this.projects);
   }
@@ -20,8 +19,11 @@ export default class Model {
   load() {
     this.projects = this.storage.load();
   }
-  createProject(title) {
+  createProject(title, description) {
     const project = new Project(title);
+    if (description) {
+      project.description = description;
+    }
     this.projects.push(project);
     this.save();
   }

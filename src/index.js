@@ -14,14 +14,21 @@ class Controller {
     // the stable shell already created by the view's layout.
     this.init();
 
-    this.view.bindCreateProject(this.CreateProjectClick);
+    // wiring up the two distinct user actions.
+    this.view.bindCreateProject(this.handleShowModal);
+    this.view.bindAddProject(this.handleAddProject);
   }
 
-  //listens for 'new project' button click
-  CreateProjectClick = () => {
-    console.log("heard");
-    // console.log(this);
-    // this.model.createProject()
+  // simple trigger to display the ui.
+  handleShowModal = () => {
+    this.view.showModal();
+  };
+
+  // logic to process the actual form data.
+  handleAddProject = (data) => {
+    console.log("form data received in controller:", data);
+    this.model.createProject(data.title, data.description);
+    this.view.updateProjectList(this.model.projects);
   };
 
   // initial application data synchronization between model and view.
