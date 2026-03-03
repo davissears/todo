@@ -33,8 +33,10 @@ export default class Modal {
 
     // each input is paired with a label for accessibility.
     // the label provides the clickable area and the screen reader description.
+    //
+    // title
     const titleLabel = document.createElement("label");
-    titleLabel.textContent = "project title";
+    titleLabel.textContent = "Title";
     titleLabel.setAttribute("for", "project-title-input");
 
     const titleInput = document.createElement("input");
@@ -44,14 +46,62 @@ export default class Modal {
     titleInput.required = true;
     titleInput.placeholder = "e.g., house renovation";
 
+    //desc
     const descLabel = document.createElement("label");
-    descLabel.textContent = "description (optional)";
+    descLabel.textContent = "description ";
     descLabel.setAttribute("for", "project-desc-input");
 
     const descInput = document.createElement("textarea");
     descInput.id = "project-desc-input";
     descInput.name = "description";
     descInput.placeholder = "add some details about this project...";
+
+    // status
+    const statusLabel = document.createElement("label");
+    statusLabel.textContent = "Status";
+    statusLabel.setAttribute("for", "project-status-input");
+
+    const statusInput = document.createElement("input");
+    statusInput.id = "project-status-input";
+    statusInput.type = "input";
+    statusInput.name = "status";
+    statusInput.required = true;
+    statusInput.placeholder = `ACTIVE or BLOCKED`;
+
+    //note
+    const noteLabel = document.createElement("label");
+    noteLabel.textContent = "Note";
+    noteLabel.setAttribute("for", "project-note-input");
+
+    const noteInput = document.createElement("input");
+    noteInput.id = "project-note-input";
+    noteInput.type = "input";
+    noteInput.name = "note";
+    noteInput.required = false;
+    noteInput.placeholder =
+      "add notes you may need to remember concerning this project";
+
+    // priority
+    const priorityLabel = document.createElement("label");
+    priorityLabel.textContent = "Priority";
+    priorityLabel.setAttribute("for", "project-priority-input");
+
+    const priorityInput = document.createElement("input");
+    priorityInput.id = "project-priority-input";
+    priorityInput.type = "input";
+    priorityInput.name = "priority";
+    priorityInput.required = false;
+    priorityInput.placeholder = "NONE, LOW, MED, HIGH, or EMERGENCY";
+
+    const dueDateLabel = document.createElement("label");
+    dueDateLabel.textContent = "Due Date";
+    dueDateLabel.setAttribute("for", "project-dueDate-input");
+
+    const dueDateInput = document.createElement("input");
+    dueDateInput.id = "project-dueDate-Input";
+    dueDateInput.type = "datetime-local";
+    dueDateInput.name = "dueDate";
+    dueDateInput.required = false;
 
     // a container for the action buttons to allow for flexbox alignment.
     const actions = document.createElement("div");
@@ -71,13 +121,26 @@ export default class Modal {
     submitBtn.textContent = "create project";
 
     actions.append(cancelBtn, submitBtn);
-    this.form.append(title, titleLabel, titleInput, descLabel, descInput, actions);
+    this.form.append(
+      title,
+      titleLabel,
+      titleInput,
+      descLabel,
+      descInput,
+      statusLabel,
+      statusInput,
+      noteLabel,
+      noteInput,
+      priorityLabel,
+      priorityInput,
+      dueDateLabel,
+      dueDateInput,
+      actions,
+    );
     this.dialog.append(this.form);
   }
 
   show() {
-    // showmodal() is superior to show() as it provides the 'backdrop'
-    // and correctly manages the 'top layer' stacking context.
     this.dialog.showModal();
   }
 
