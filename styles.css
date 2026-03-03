@@ -86,17 +86,32 @@ h6 {
 
 header {
     grid-area: header;
-    background-color: #f4f4f4; 
+    background-color: #f4f4f4;
     border-right: 1px solid #ddd;
 }
 
 aside {
     grid-area: sidebar;
-    background-color: #f4f4f4; 
+    background-color: #f4f4f4;
     border-right: 1px solid #ddd;
 }
 
 main {
     grid-area: main;
     overflow-y: auto; /* allow the whiteboard to scroll independently */
+}
+
+.modal-form {
+    display: grid;
+    width: 50vw;
+}
+
+.modal-actions {
+    display: grid;
+    width: 40%;
+    height: 3rem;
+    justify-self: end;
+    grid-template-areas: "cancel submit";
+    align-items: center;
+    justify-content: space-around;
 }
