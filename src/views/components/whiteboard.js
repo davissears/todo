@@ -27,13 +27,17 @@ export default class Whiteboard {
     this.verticalDrawer.setAttribute("aria-hidden", "true");
 
     // appending these containers establishes our three levels of hierarchy.
-    this.root.append(this.projectListContainer, this.horizontalDrawer, this.verticalDrawer);
+    this.root.append(
+      this.projectListContainer,
+      this.horizontalDrawer,
+      this.verticalDrawer,
+    );
   }
 
   // surgical render: update only the list of project titles.
   renderProjectList(projects) {
     this.projectListContainer.innerHTML = "";
-    
+
     // a simple heading identifies the entry point for the user.
     const title = document.createElement("h2");
     title.textContent = "your projects";
@@ -74,7 +78,14 @@ export default class Whiteboard {
     projectTitle.textContent = project.title;
     this.horizontalDrawer.append(projectTitle);
 
-    // TODO: implement logic to render todo/checklist titles here as buttons.
+// TODO: create a UL and append project.items inside it as an LI
+    project.items.forEach((item) => {
+      const itemBtn = document.createElement("button");
+      itemBtn.className = "drawer-item-btn"; // useful for styling later
+      itemBtn.textContent = item.title;
+      itemBtn.setAttribute("data-id", item.id);
+      itemBtn.setAttribute("aria-label", `View details for ${item.title}`);
+    });
   }
 
   // this opens the vertical 'third-tier' drawer for specific task details.

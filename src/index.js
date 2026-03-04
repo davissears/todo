@@ -23,7 +23,9 @@ class Controller {
   handleOpenHorDrawer = (event) => {
     if (event.target.tagName === "BUTTON") {
       const dataId = event.target.dataset.id;
-      const project = app.model.projects.find((dataId) => dataId);
+      console.log(dataId);
+      const project = this.model.projects.find((p) => p.id === dataId);
+      console.log(project);
       this.view.openProjectTaskDrawer(project);
     }
   };
