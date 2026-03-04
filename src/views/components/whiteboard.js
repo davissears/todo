@@ -64,7 +64,7 @@ export default class Whiteboard {
   }
 
   // this opens the horizontal 'second-tier' drawer for project contents.
-  openProjectDrawer(project) {
+  openProjectTaskDrawer(project) {
     // changing aria-hidden makes the new content visible to screen readers.
     this.horizontalDrawer.setAttribute("aria-hidden", "false");
     this.horizontalDrawer.classList.add("open");
@@ -78,7 +78,7 @@ export default class Whiteboard {
   }
 
   // this opens the vertical 'third-tier' drawer for specific task details.
-  openTaskDetailDrawer(item) {
+  openProjectDetailDrawer(item) {
     this.verticalDrawer.setAttribute("aria-hidden", "false");
     this.verticalDrawer.classList.add("open");
     this.verticalDrawer.innerHTML = "";

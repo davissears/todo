@@ -17,7 +17,16 @@ class Controller {
     // wiring up the two distinct user actions.
     this.view.bindCreateProject(this.handleShowModal);
     this.view.bindAddProject(this.handleAddProject);
+    this.view.bindProjectButton(this.handleOpenHorDrawer);
   }
+
+  handleOpenHorDrawer = (event) => {
+    if (event.target.tagName === "BUTTON") {
+      const dataId = event.target.dataset.id;
+      const project = app.model.projects.find((dataId) => dataId);
+      this.view.openProjectTaskDrawer(project);
+    }
+  };
 
   // simple trigger to display the ui.
   handleShowModal = () => {
