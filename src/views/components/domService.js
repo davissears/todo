@@ -5,14 +5,13 @@
 // >
 //   {item.title}
 // </button>;
-// 
+//
 // <HorizontalDrawer isOpen={true} project={project} />
 // React.createElement('button', {
 //   className="drawer-item-btn",
 //  data-id={item.id},
 //   aria-label={`View details for ${item.title}`}
 // }, item.title)
-
 
 // function HorizontalDrawer(attributes) {
 //   if (!attributes.isOpen) {
@@ -22,36 +21,44 @@
 //   // the code from the other place
 // }
 
-export function createTextElement(tagName, attributes, text) {
+//-------------------------------------default parameters: prevents undefined errors
+export function createElement(tagName, attributes = {}, children = []) {
   const item = document.createElement(tagName);
 
+  // handle attributes
   for (const key in attributes) {
-    if (attributes.hasOwnProperty(key)) {
-      item.setAttribute(key, attributes[key]);
+    // if gaurd protects from:
+    // --null objects throwing type errors
+    // --hasOwnProperty shadowing
+    // --prototype polution: ignores attributes not explicitly defined
+    if (Object.prototype.hasOwnProperty.call(attributes, key)) {
+      // map className to class just to be safe
+      const attributeName = key === "className" ? "class" : key;
+      let value = attributes[key];
+
+      // class utility: join arrays for classes (ex. class: ['btn', 'btn-primary'])
+      // why?: easier dynamic styling
+      if (attributeName === "class" && Array.isArray(value)) {
+        value = value.join(" ");
+      }
+      // gives DOM node provided properties
+      item.setAttribute(attributeName, value);
     }
   }
 
-  item.textContent = text;
+  // appends children (handles strings, elements, and nested arrays)
+  const appendChild = (parent, child) => {
+    // de-nesting
+    if (Array.isArray(child)) {
+      child.forEach((nestedChild) => appendChild(parent, nestedChild));
 
-  return item;
-}
-
-export function createElement(tagName, attributes, children) {
-  const item = document.createElement(tagName);
-
-  for (const key in attributes) {
-    if (attributes.hasOwnProperty(key)) {
-      item.setAttribute(key, attributes[key]);
+      //gaurds null / undefined values
+    } else if (child !== null && child !== undefined) {
+      parent.append(child);
     }
-  }
+  };
 
-  if (typeof children === "string") {
-    item.textContent = children;
-  } else if (Array.isArray(children)) {
-    item.append(...children);
-  } else if (children instanceof HTMLElement) {
-    item.append(children);
-  }
+  appendChild(item, children);
 
   return item;
 }
@@ -90,5 +97,3 @@ export function createElement(tagName, attributes, children) {
 
 //   }
 // }
-
-
