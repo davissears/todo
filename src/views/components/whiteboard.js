@@ -1,32 +1,27 @@
+import { createElement } from "./domService";
+
 export default class Whiteboard {
   constructor(rootElement) {
     if (!rootElement) {
       throw new Error("whiteboard requires a root element to mount.");
     }
 
-    // the whiteboard is the application's central stage. it uses a 'drawer'
-    // architecture to handle deep task nesting without visual clutter.
     this.root = rootElement;
     this.root.classList.add("whiteboard");
 
-    // this container holds the initial project titles. clicking one
-    // acts as the first tier of the progressive disclosure pattern.
-    this.projectListContainer = document.createElement("div");
-    this.projectListContainer.className = "whiteboard-project-list";
+    // init containers 
+    this.projectListContainer = createElement("div", {
+      class: "whiteboard-project-list",
+    });
+    this.horizontalDrawer = createElement("div", {
+      class: "drawer-horizontal",
+      "aria-hidden": "true",
+    });
+    this.verticalDrawer = createElement("div", {
+      class: "drawer-vertical",
+      "aria-hidden": "true",
+    });
 
-    // the horizontal drawer provides the second tier of disclosure.
-    // it slides out to reveal a project's todos and checklists.
-    this.horizontalDrawer = document.createElement("div");
-    this.horizontalDrawer.className = "drawer-horizontal";
-    this.horizontalDrawer.setAttribute("aria-hidden", "true");
-
-    // the vertical drawer is the final tier of the disclosure pattern.
-    // it provides deep details for specific todos or checklist items.
-    this.verticalDrawer = document.createElement("div");
-    this.verticalDrawer.className = "drawer-vertical";
-    this.verticalDrawer.setAttribute("aria-hidden", "true");
-
-    // appending these containers establishes our three levels of hierarchy.
     this.root.append(
       this.projectListContainer,
       this.horizontalDrawer,
@@ -36,67 +31,70 @@ export default class Whiteboard {
 
   // surgical render: update only the list of project titles.
   renderProjectList(projects) {
-    this.projectListContainer.innerHTML = "";
+    const title = createElement("h2", {}, "your projects");
 
-    // a simple heading identifies the entry point for the user.
-    const title = document.createElement("h2");
-    title.textContent = "your projects";
-    this.projectListContainer.append(title);
+    const list = createElement(
+      "ul",
+      { style: "list-style: none; padding: 0;" },
+      projects.map((project) =>
+        createElement(
+          "li",
+          {},
+          createElement(
+            "button",
+            {
+              class: "whiteboard-project-btn",
+              "data-id": project.id,
+              "aria-expanded": "false",
+              "aria-label": `open project: ${project.title}`,
+            },
+            project.title,
+          ),
+        ),
+      ),
+    );
 
-    const list = document.createElement("ul");
-    list.style.listStyle = "none";
-    list.style.padding = "0";
-
-    projects.forEach((project) => {
-      const listItem = document.createElement("li");
-
-      // each title is a button to ensure it is interactive and accessible.
-      const projectBtn = document.createElement("button");
-      projectBtn.className = "whiteboard-project-btn";
-      projectBtn.textContent = project.title;
-
-      // data-id allows the controller to trigger the correct drawer update.
-      projectBtn.setAttribute("data-id", project.id);
-      projectBtn.setAttribute("aria-expanded", "false");
-      projectBtn.setAttribute("aria-label", `open project: ${project.title}`);
-
-      listItem.append(projectBtn);
-      list.append(listItem);
-    });
-
-    this.projectListContainer.append(list);
+    this.projectListContainer.replaceChildren(title, list);
   }
 
-  // this opens the horizontal 'second-tier' drawer for project contents.
+  // this opens the horizontal drawer for project contents.
   openProjectTaskDrawer(project) {
-    // changing aria-hidden makes the new content visible to screen readers.
     this.horizontalDrawer.setAttribute("aria-hidden", "false");
     this.horizontalDrawer.classList.add("open");
-    this.horizontalDrawer.innerHTML = "";
 
-    const projectTitle = document.createElement("h3");
-    projectTitle.textContent = project.title;
-    this.horizontalDrawer.append(projectTitle);
+    const drawerContent = [
+      createElement("h3", {}, project.title),
+      createElement(
+        "ul",
+        { class: "drawer-items-list" },
+        project.items.map((item) =>
+          createElement(
+            "li",
+            {},
+            createElement(
+              "button",
+              {
+                class: "drawer-item-btn",
+                "data-id": item.id,
+                "aria-label": `View details for ${item.title}`,
+              },
+              item.title,
+            ),
+          ),
+        ),
+      ),
+    ];
 
-// TODO: create a UL and append project.items inside it as an LI
-    project.items.forEach((item) => {
-      const itemBtn = document.createElement("button");
-      itemBtn.className = "drawer-item-btn"; // useful for styling later
-      itemBtn.textContent = item.title;
-      itemBtn.setAttribute("data-id", item.id);
-      itemBtn.setAttribute("aria-label", `View details for ${item.title}`);
-    });
+    this.horizontalDrawer.replaceChildren(...drawerContent);
   }
 
-  // this opens the vertical 'third-tier' drawer for specific task details.
+  // this opens the vertical drawer for specific task details.
   openProjectDetailDrawer(item) {
     this.verticalDrawer.setAttribute("aria-hidden", "false");
     this.verticalDrawer.classList.add("open");
-    this.verticalDrawer.innerHTML = "";
 
-    const itemTitle = document.createElement("h4");
-    itemTitle.textContent = item.title;
-    this.verticalDrawer.append(itemTitle);
+    const itemTitle = createElement("h4", {}, item.title);
+    this.verticalDrawer.replaceChildren(itemTitle);
 
     // TODO: implement logic to render notes, priority, and sub-items here.
   }
