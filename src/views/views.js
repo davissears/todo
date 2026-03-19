@@ -1,3 +1,4 @@
+import { createElement } from "./components/domService.js";
 import Layout from "./layout.js";
 import Modal from "./components/projectForm.js";
 
@@ -36,7 +37,6 @@ export default class View {
     this.layout.whiteboard.renderProjectList(projects);
   }
 
-  // TODO: implement this method
   // this method allows the controller to trigger the second-tier disclosure.
   // it commands the whiteboard to open a project's horizontal drawer.
   bindProjectButton(handler) {
@@ -45,17 +45,9 @@ export default class View {
       handler,
     );
   }
+
   openProjectTaskDrawer(project) {
     this.layout.whiteboard.openProjectTaskDrawer(project);
-  }
-
-  // this utility helper creates elements with classes, aiding surgical render logic.
-  createElement(tag, className) {
-    const element = document.createElement(tag);
-    if (className) {
-      element.className = className;
-    }
-    return element;
   }
 
   // scoped selector to prevent global dom pollution and maintain modularity.
