@@ -1,3 +1,4 @@
+import { createElement } from "./components/domService.js";
 import Header from "./components/header.js";
 import Sidebar from "./components/sidebar.js";
 import Whiteboard from "./components/whiteboard.js";
@@ -10,29 +11,19 @@ export default class Layout {
 
     // the layout class acts as the 'stable shell' of our application.
     // by mounting major components (header, sidebar, whiteboard) once,
-    // we establish landmarks that assistive tech can reliably identify.
+
     this.root = rootElement;
 
-    // using a document fragment allows us to 'batch' the initial mount.
-    // this minimizes the number of reflows by building the layout off-screen 
-    // and injecting it into the live dom as a single operation.
+    // initializing the landmarks with their respective semantic tags.
+    // the <header>, <aside>, and <main> tags are crucial for accessibility.
+    this.header = new Header(createElement("header"));
+    this.sidebar = new Sidebar(createElement("aside"));
+    this.whiteboard = new Whiteboard(createElement("main"));
+
+    // using a document fragment to 'batch' the initial mount off-screen.
+    // this minimizes reflows and improves initial load performance.
     const fragment = document.createDocumentFragment();
-
-    // each landmark is initialized with its semantic tag. the aside tag
-    // ensures the sidebar is identified as complementary navigation.
-    const headerTag = document.createElement("header");
-    this.header = new Header(headerTag);
-    fragment.append(headerTag);
-
-    const sidebarTag = document.createElement("aside");
-    this.sidebar = new Sidebar(sidebarTag);
-    fragment.append(sidebarTag);
-
-    // the <main> tag is crucial for accessibility. it identifies the 
-    // core application content that users can 'skip' to using shortcuts.
-    const mainTag = document.createElement("main");
-    this.whiteboard = new Whiteboard(mainTag);
-    fragment.append(mainTag);
+    fragment.append(this.header.root, this.sidebar.root, this.whiteboard.root);
 
     // injecting the fragment completes the stable shell initialization.
     this.root.append(fragment);
