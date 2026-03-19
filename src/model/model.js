@@ -19,6 +19,9 @@ export default class Model {
   load() {
     this.projects = this.storage.load();
   }
+  
+  // delete an object
+  delete
   createProject(title, description) {
     const project = new Project(title);
     if (description) {
