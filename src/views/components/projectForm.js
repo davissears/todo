@@ -62,13 +62,11 @@ export default class Modal {
 
       // status
       createElement("label", { for: "project-status-input" }, "Status"),
-      createElement("input", {
-        id: "project-status-input",
-        type: "text",
-        name: "status",
-        required: "true",
-        placeholder: "ACTIVE or BLOCKED"
-      }),
+      createElement("select", { id: "project-status-input", name: "status" }, [
+        createElement("option", { value: "ACTIVE" }, "Active"),
+        createElement("option", { value: "COMPLETE" }, "Complete"),
+        createElement("option", { value: "BLOCKED" }, "Blocked"),
+      ]),
 
       // note
       createElement("label", { for: "project-note-input" }, "Note"),
@@ -81,12 +79,13 @@ export default class Modal {
 
       // priority
       createElement("label", { for: "project-priority-input" }, "Priority"),
-      createElement("input", {
-        id: "project-priority-input",
-        type: "text",
-        name: "priority",
-        placeholder: "NONE, LOW, MED, HIGH, or EMERGENCY"
-      }),
+      createElement("select", { id: "project-priority-input", name: "priority" }, [
+        createElement("option", { value: "NONE" }, "None"),
+        createElement("option", { value: "LOW" }, "Low"),
+        createElement("option", { value: "MED" }, "Medium"),
+        createElement("option", { value: "HIGH" }, "High"),
+        createElement("option", { value: "EMERGENCY" }, "Emergency"),
+      ]),
 
       // due date
       createElement("label", { for: "project-dueDate-input" }, "Due Date"),
@@ -106,8 +105,43 @@ export default class Modal {
     this.dialog.append(this.form);
   }
 
-  show() {
+  show(data = null) {
+    if (data) {
+      this.setFormData(data);
+      this.dialog.querySelector("#modal-title").textContent = "Edit Project";
+      this.dialog.querySelector('button[type="submit"]').textContent = "Update Project";
+      this.isEdit = true;
+      this.editId = data.id;
+    } else {
+      this.form.reset();
+      this.dialog.querySelector("#modal-title").textContent = "Create New Project";
+      this.dialog.querySelector('button[type="submit"]').textContent = "Create Project";
+      this.isEdit = false;
+      this.editId = null;
+    }
     this.dialog.showModal();
+  }
+
+  setFormData(data) {
+    const titleInput = this.form.querySelector("#project-title-input");
+    const descInput = this.form.querySelector("#project-desc-input");
+    const statusInput = this.form.querySelector("#project-status-input");
+    const noteInput = this.form.querySelector("#project-note-input");
+    const priorityInput = this.form.querySelector("#project-priority-input");
+    const dueDateInput = this.form.querySelector("#project-dueDate-input");
+
+    if (titleInput) titleInput.value = data.title || "";
+    if (descInput) descInput.value = data.description || "";
+    if (statusInput) statusInput.value = data.status || "ACTIVE";
+    if (noteInput) noteInput.value = (typeof data.note === 'string' ? data.note : (data.note ? data.note.note : "")) || "";
+    if (priorityInput) priorityInput.value = (typeof data.priority === 'string' ? data.priority : (data.priority ? data.priority.priority : "NONE")) || "NONE";
+    
+    if (dueDateInput && data.dueDateTime) {
+      const date = new Date(data.dueDateTime.date);
+      // Format for datetime-local: YYYY-MM-DDTHH:mm
+      const formattedDate = date.toISOString().slice(0, 16);
+      dueDateInput.value = formattedDate;
+    }
   }
 
   close() {
@@ -123,6 +157,11 @@ export default class Modal {
       // extract data using the modern formdata api.
       const formData = new FormData(this.form);
       const data = Object.fromEntries(formData.entries());
+      
+      if (this.isEdit) {
+        data.id = this.editId;
+        data.isEdit = true;
+      }
 
       handler(data);
 

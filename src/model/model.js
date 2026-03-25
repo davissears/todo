@@ -21,7 +21,11 @@ export default class Model {
   }
   
   // delete an object
-  delete
+  deleteProject(projectId) {
+    this.projects = this.projects.filter(p => p.id !== projectId);
+    this.save();
+  }
+
   createProject(title, description) {
     const project = new Project(title);
     if (description) {

@@ -31,12 +31,10 @@ export default class Priority {
       "HIGH",
       "EMERGENCY",
     ];
-    if (validPriority.includes(value) && value instanceof Priority) {
+    if (validPriority.includes(value)) {
       this.#priority = value;
-    } else if (!validPriority.includes(value)) {
-      throw new Error(`${value} is not a valid value`);
     } else {
-      this.#priority = new Priority(value, this.groupId);
+      throw new Error(`${value} is not a valid priority value`);
     }
   }
 }

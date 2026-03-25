@@ -55,9 +55,14 @@ export default class Jot {
     return this.#status;
   }
   set status(status) {
-    const validStatus = [undefined, "COMPLETE", "ACTIVE", "BLOCKED"];
-    if (validStatus.includes(status)) {
-      this.#status = status; // remove `return`
+    if (status === undefined || status === null || status === "") {
+      this.#status = undefined;
+      return;
+    }
+    const normalizedStatus = status.toString().toUpperCase();
+    const validStatus = ["COMPLETE", "ACTIVE", "BLOCKED"];
+    if (validStatus.includes(normalizedStatus)) {
+      this.#status = normalizedStatus;
     } else {
       throw new Error(`invalid jot status value: ${status}`);
     }
@@ -68,16 +73,21 @@ export default class Jot {
   }
 
   set dueDateTime(value) {
-    if (value === undefined || value === null) {
+    if (value === undefined || value === null || value === "") {
       this.#dueDateTime = undefined;
       return;
     }
 
-    // If we're passing in our own wrapped object { date: Date }, extract the date
-    const dateValue = value.date || value;
+    // Extract date from various possible formats
+    let dateValue = value;
+    if (typeof value === 'object' && value.date) {
+      dateValue = value.date;
+    }
+    
     const newDate = new Date(dateValue);
 
     if (!isNaN(newDate.getTime())) {
+      // Store as a simple object with a date property for consistent serialization
       this.#dueDateTime = { date: newDate };
     } else {
       this.#dueDateTime = undefined;

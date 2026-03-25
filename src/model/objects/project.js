@@ -31,6 +31,7 @@ export default class Project extends Jot {
     if (value instanceof Priority) {
       this.#priority = value;
     } else {
+      // Pass the raw value (string) to the constructor
       this.#priority = new Priority(value, this.groupId);
     }
   }
