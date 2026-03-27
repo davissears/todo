@@ -1,5 +1,5 @@
 await Bun.build({
-	entrypoints: ["./src/index.js"],
+	entrypoints: ["./index.html"],
 	outdir: "./dist",
 	minify: true,
 	sourcemap: "external",
