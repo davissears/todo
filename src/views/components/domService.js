@@ -52,6 +52,10 @@ export function createElement(tagName, attributes = {}, children = []) {
     if (Array.isArray(child)) {
       child.forEach((nestedChild) => appendChild(parent, nestedChild));
 
+      // convert strings to text nodes
+    } else if (typeof child === "string") {
+      parent.append(document.createTextNode(child));
+
       //gaurds null / undefined values
     } else if (child !== null && child !== undefined) {
       parent.append(child);
@@ -63,37 +67,3 @@ export function createElement(tagName, attributes = {}, children = []) {
   return item;
 }
 
-// Children can be:
-// element[] | element
-//
-// element is
-// string | HTMLElement
-
-// createElement('h1', { class: 'welcome' }, 'Hello world')
-
-// createElement('h1', { class: 'welcome' }, ['Hello world', 'My name is', 'Carlos'])
-
-// createElement('h1', { class: 'welcome' }, createElement('span', {}, 'Hello world'))
-
-// createElement('h1', { class: 'welcome' }, [
-//   createElement('span', {}, 'Hello world'),
-//   'My name is carlos',
-//   ['Welcome', 'to app']
-// ])
-
-// const attributes = {
-//   class: "drawer-item-btn",
-//   "data-id": "stringId",
-//   "aria-label": `View details for item.title`,
-// };
-// const item = createTextElement("testTag", attributes, "textContent");
-// console.log(item);
-
-// function createElement(tagName, attributes, children) {
-//   if (children is a string) {
-//     createTextElement
-//   }
-//   if (children is an array) {
-
-//   }
-// }
