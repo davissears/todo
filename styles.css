@@ -337,11 +337,13 @@ main {
     background-color: var(--bg-primary);
     box-shadow: var(--shadow-subtle);
     overflow: hidden;
-    transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+    transition: transform var(--transition-speed), box-shadow var(--transition-speed), border-color var(--transition-speed);
 }
 
 .project-container:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: var(--accent-blue);
+    box-shadow: 0 4px 16px rgba(0, 122, 255, 0.15);
+    transform: translateY(-1px);
 }
 
 .project-header {
