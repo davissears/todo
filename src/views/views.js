@@ -203,13 +203,11 @@ export default class View {
   }
 
   bindCompleteProject(handler) {
-    console.log("Binding complete project handler:", typeof handler);
     this.layout.whiteboard.projectListContainer.addEventListener(
       "click",
       (event) => {
         const btn = event.target.closest(".complete-project-btn");
         if (btn) {
-          console.log("Complete project button clicked. Handler type:", typeof handler);
           handler(btn.dataset.id);
         }
       }

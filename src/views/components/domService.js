@@ -1,26 +1,3 @@
-//   className="drawer-item-btn"
-// <button
-//   data-id={item.id}
-//   aria-label={`View details for ${item.title}`}
-// >
-//   {item.title}
-// </button>;
-//
-// <HorizontalDrawer isOpen={true} project={project} />
-// React.createElement('button', {
-//   className="drawer-item-btn",
-//  data-id={item.id},
-//   aria-label={`View details for ${item.title}`}
-// }, item.title)
-
-// function HorizontalDrawer(attributes) {
-//   if (!attributes.isOpen) {
-//     return createElement('div', {}, [])
-//   }
-//   const project = attributes.project;
-//   // the code from the other place
-// }
-
 //-------------------------------------default parameters: prevents undefined errors
 export function createElement(tagName, attributes = {}, children = []) {
   const item = document.createElement(tagName);

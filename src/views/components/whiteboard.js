@@ -187,7 +187,7 @@ export default class Whiteboard {
     ]));
 
     const detailsColumn = createElement("div", { class: "project-details-column" }, [
-      createElement("h4", { style: "font-size: 0.8rem; text-transform: uppercase; color: var(--text-secondary);" }, "Project Details"),
+      createElement("p", { style: "font-size: 0.8rem; text-transform: uppercase; color: var(--text-secondary); margin: 0;" }, "Project Details"),
       ...detailRows,
       createElement("div", { class: "drawer-actions" }, [
         ...(project.status !== "COMPLETE" ? [

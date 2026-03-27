@@ -18,7 +18,7 @@ class Controller {
     this.view.bindCreateProject(this.handleShowModal);
     this.view.bindAddProject(this.handleAddProject);
     this.view.bindAddItem(this.handleAddItemSubmit);
-    
+
     // new whiteboard interactions
     this.view.bindProjectButton(this.handleProjectClick);
     this.view.bindProjectDoubleClick(this.handleProjectDoubleClick);
@@ -47,7 +47,6 @@ class Controller {
   }
 
   handleRestoreProject = (projectId) => {
-    console.log("restoring project:", projectId);
     const project = this.model.projects.find(p => p.id === projectId);
     if (project) {
       project.status = "ACTIVE";
@@ -69,17 +68,14 @@ class Controller {
   };
 
   handleAddItem = (projectId) => {
-    console.log("opening item modal for project:", projectId);
     this.view.showItemModal(projectId);
   };
 
   handleOpenCheckItemModal = (projectId, checklistId) => {
-    console.log("opening check item modal for checklist:", checklistId);
     this.view.showItemModal(projectId, "CHECKITEM", checklistId);
   };
 
   handleAddItemSubmit = (data) => {
-    console.log("item form data received:", data);
     const parentProject = this.model.projects.find(p => p.id === data.projectId);
     if (!parentProject) return;
 
@@ -121,10 +117,10 @@ class Controller {
   handleItemClick = (projectId, itemId) => {
     const project = this.model.projects.find((p) => p.id === projectId);
     if (!project) return;
-    
+
     // First tier: Todos and Checklists
     let item = project.items.find((i) => i.id === itemId);
-    
+
     // Second tier: Checkitems inside Checklists
     if (!item) {
       for (const pItem of project.items) {
@@ -134,20 +130,19 @@ class Controller {
         }
       }
     }
-    
+
     if (!item) return;
-    
+
     this.view.openItemDetailDrawer(projectId, itemId, item);
   };
 
   handleDeleteItem = (projectId, itemId) => {
-    console.log("deleting item:", itemId, "from project:", projectId);
     const project = this.model.projects.find(p => p.id === projectId);
     if (project) {
       // First tier
       const initialLen = project.items.length;
       project.items = project.items.filter(i => i.id !== itemId);
-      
+
       // If nothing was deleted, check nested checklists
       if (project.items.length === initialLen) {
         for (const item of project.items) {
@@ -156,14 +151,13 @@ class Controller {
           }
         }
       }
-      
+
       this.model.save();
       this.view.updateProjectList(this.model.projects);
     }
   };
 
   handleDeleteProject = (projectId) => {
-    console.log("deleting project:", projectId);
     this.model.deleteProject(projectId);
     this.view.updateProjectList(this.model.projects);
   };
@@ -202,7 +196,6 @@ class Controller {
   };
 
   handleCompleteTask = (projectId, itemId) => {
-    console.log("completing task:", itemId, "in project:", projectId);
     const project = this.model.projects.find(p => p.id === projectId);
     if (project) {
       let item = project.items.find(i => i.id === itemId);
@@ -214,7 +207,7 @@ class Controller {
           }
         }
       }
-      
+
       if (item) {
         item.status = "COMPLETE";
         this.model.save();
@@ -224,7 +217,6 @@ class Controller {
   };
 
   handleCompleteProject = (projectId) => {
-    console.log("completing project:", projectId);
     const project = this.model.projects.find(p => p.id === projectId);
     if (project) {
       project.status = "COMPLETE";
@@ -248,8 +240,6 @@ class Controller {
 
   // logic to process the actual form data.
   handleAddProject = (data) => {
-    console.log("form data received in controller:", data);
-    
     if (data.isEdit) {
       const project = this.model.projects.find(p => p.id === data.id);
       if (project) {
@@ -268,9 +258,9 @@ class Controller {
       newProject.priority = data.priority;
       if (data.dueDate) newProject.dueDateTime = data.dueDate;
     }
-    
+
     this.model.save();
-    
+
     // refresh the view
     this.view.updateProjectList(this.model.projects);
   };
@@ -281,7 +271,6 @@ class Controller {
     // we fetch the current projects from the model and tell the
     // view facade to update the project navigation in the sidebar.
     this.view.updateProjectList(this.model.projects);
-    console.log("controller initialized. application data synced.");
   }
 
   initTheme() {
@@ -296,7 +285,7 @@ class Controller {
   handleThemeToggle = () => {
     const isDark = document.body.classList.toggle("dark-mode");
     localStorage.setItem("jot-theme", isDark ? "dark" : "light");
-    
+
     const icon = this.view.layout.header.themeToggleBtn.querySelector(".material-icons");
     if (icon) {
       icon.textContent = isDark ? "light_mode" : "dark_mode";
@@ -326,7 +315,6 @@ initApp();
 // hot module replacement support for development.
 if (import.meta.hot) {
   import.meta.hot.accept(() => {
-    console.log("hmr: reloading application state...");
     initApp();
   });
 }
