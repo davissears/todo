@@ -392,15 +392,13 @@ main {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
-    min-width: 200px;
-    max-width: 250px;
     transition: all var(--transition-speed);
+    min-width: 0;
 }
 
 .item-wrapper.expanded,
 .check-item-wrapper.expanded {
-    max-width: 400px;
-    flex: 1 0 auto; /* Allow expanding and don't shrink below content */
+    grid-column: span 1; /* stay in one column */
 }
 
 .item-detail-drawer {
@@ -478,10 +476,15 @@ main {
 
 /* Items in Drawers */
 .drawer-items-list {
-    display: flex;
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(4, auto);
+    grid-auto-columns: minmax(200px, 250px);
     gap: 0.5rem;
     list-style: none;
     padding: 0;
+    align-content: start;
+    align-items: start;
 }
 
 .drawer-item-btn {
