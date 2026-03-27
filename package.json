@@ -5,6 +5,7 @@
   "private": true,
   "devDependencies": {
     "@biomejs/biome": "^2.3.11",
+    "@happy-dom/global-registrator": "^20.8.9",
     "@types/bun": "latest"
   },
   "peerDependencies": {
@@ -15,7 +16,8 @@
     "build": "bun ./build.ts",
     "test:dx": "bun run ./tests/run_dx_suite.ts",
     "test:tui": "bun run tests/tui_dx_tools/tui_runner.ts",
-    "test:props": "bun test tests/props.test.js"
+    "test:props": "bun test tests/props.test.js",
+    "test:unit": "bun test --dom tests/unit"
   },
   "dependencies": {
     "date-fns": "^4.1.0"

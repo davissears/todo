@@ -32,7 +32,6 @@ export default class Model {
       project.description = description;
     }
     this.projects.push(project);
-    this.save();
   }
 
   createChild(title, tier, parent) {
@@ -47,7 +46,6 @@ export default class Model {
 
     child.groupId = parent.groupId;
     parent.items.push(child);
-    this.save();
   }
 
   // NOTE: perhaps one method should be should be able to set any prop
