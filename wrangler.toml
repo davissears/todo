@@ -1,12 +1,12 @@
 name = "todo"
 compatibility_date = "2025-01-01"
+routes = [
+  { pattern = "davissears.com/jot*", zone_name = "davissears.com" }
+]
 
 [assets]
 directory = "dist"
 
-routes = [
-  { pattern = "davissears.com/jot*", zone_name = "davissears.com" }
-]
 [observability]
 enabled = false
 head_sampling_rate = 1
@@ -16,6 +16,7 @@ enabled = true
 head_sampling_rate = 1
 persist = true
 invocation_logs = true
+head_sampling_rate = 1
 
 [observability.traces]
 enabled = false
