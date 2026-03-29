@@ -5,7 +5,9 @@
       "mcp__chrome-devtools__hover",
       "mcp__chrome-devtools__lighthouse_audit",
       "mcp__chrome-devtools__navigate_page",
-      "mcp__chrome-devtools__evaluate_script"
+      "mcp__chrome-devtools__evaluate_script",
+      "WebSearch",
+      "WebFetch(domain:developers.cloudflare.com)"
     ]
   }
 }

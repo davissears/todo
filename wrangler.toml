@@ -3,6 +3,7 @@ compatibility_date = "2025-01-01"
 
 [assets]
 directory = "dist"
+
 routes = [
   { pattern = "davissears.com/jot*", zone_name = "davissears.com" }
 ]
