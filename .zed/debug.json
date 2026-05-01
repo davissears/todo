@@ -1,0 +1,24 @@
+[
+  {
+    "label": "Bun: Run Current File",
+    "adapter": "node",
+    "configuration": {
+      "request": "launch",
+      "program": "${file}",
+      "runtimeExecutable": "bun",
+      "skipFiles": ["<node_internals>/**"],
+      "console": "integratedTerminal",
+    },
+  },
+  {
+    "label": "Bun: Dev Server",
+    "adapter": "node",
+    "configuration": {
+      "request": "launch",
+      "program": "${workspaceRoot}/dev.ts",
+      "runtimeExecutable": "bun",
+      "cwd": "${workspaceRoot}",
+      "console": "integratedTerminal",
+    },
+  },
+]
