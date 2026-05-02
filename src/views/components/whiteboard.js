@@ -425,6 +425,15 @@ export default class Whiteboard {
           "title": "Complete task"
         }, createElement("span", { class: "material-icons" }, "check_circle"))
       );
+    } else {
+      actionButtons.push(
+        createElement("button", {
+          class: "restore-task-btn",
+          "data-id": item.id,
+          "data-project-id": projectId,
+          "title": "Restore task"
+        }, createElement("span", { class: "material-icons" }, "settings_backup_restore"))
+      );
     }
     actionButtons.push(
       createElement("button", { 
