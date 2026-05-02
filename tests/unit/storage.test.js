@@ -93,6 +93,23 @@ describe("StorageService", () => {
       expect(loaded.dueDateTime.date).toBeInstanceOf(Date);
     });
 
+    test("ignores invalid stored dueDateTime instead of throwing", () => {
+      localStorage.setItem(KEY, JSON.stringify([{
+        title: "Legacy Project",
+        tier: "PROJECT",
+        id: "legacy-project-id",
+        groupId: "legacy-group-id",
+        items: [],
+        dueDateTime: { date: "not-a-date" },
+      }]));
+
+      let loaded;
+      expect(() => {
+        loaded = storage.load();
+      }).not.toThrow();
+      expect(loaded[0].dueDateTime).toBeUndefined();
+    });
+
     test("handles project with no optional fields", () => {
       const p = new Project("Minimal");
       storage.save([p]);

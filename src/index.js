@@ -2,6 +2,14 @@
 import Model from "./model/model.js";
 import View from "./views/views.js";
 
+function shouldUseChecklistParent(data) {
+  return data.tier === "CHECKITEM" && data.checklistId;
+}
+
+function findChecklistParent(project, checklistId) {
+  return project.items.find(item => item.id === checklistId) || null;
+}
+
 // the controller acts as the central coordinator. it processes user
 // input from the view and translates it into model updates.
 class Controller {
@@ -37,23 +45,98 @@ class Controller {
     this.view.bindEditItem(this.handleEditItem);
     this.view.bindThemeToggle(this.handleThemeToggle);
     this.view.bindSidebarToggle(this.handleSidebarToggle);
+  }
 
-    // Sidebar completed projects delete
-    this.view.layout.sidebar.completedProjectsDrawer.addEventListener("click", (event) => {
-      const btn = event.target.closest(".delete-project-btn");
-      if (btn) {
-        this.handleDeleteProject(btn.dataset.id);
-      }
-    });
+  findProject(projectId) {
+    return this.model.projects.find(project => project.id === projectId) || null;
+  }
+
+  resolveItemParent(data) {
+    const project = this.findProject(data.projectId);
+    if (!project) return null;
+
+    return shouldUseChecklistParent(data)
+      ? findChecklistParent(project, data.checklistId)
+      : project;
+  }
+
+  applyProjectFormFields(project, data) {
+    project.title = data.title;
+    project.description = data.description;
+    project.status = this.normalizeStatus(data.status);
+    project.note = data.note;
+    project.priority = data.priority;
+    if (data.dueDate) project.dueDateTime = data.dueDate;
+  }
+
+  applyItemFormFields(item, data) {
+    item.title = data.title;
+
+    if (data.tier !== "CHECKITEM") {
+      item.description = data.description;
+      if (data.dueDate) item.dueDateTime = data.dueDate;
+    }
+
+    item.status = this.normalizeStatus(data.status);
+
+    if (data.tier === "TODO") {
+      item.note = data.note;
+      item.priority = data.priority;
+    }
+  }
+
+  normalizeStatus(status) {
+    return status ? status.toUpperCase() : "ACTIVE";
+  }
+
+  setProjectStatus(projectId, status) {
+    const project = this.findProject(projectId);
+    if (!project) return;
+
+    project.status = status;
+    this.saveAndRefreshProjectList();
+  }
+
+  setItemStatus(projectId, itemId, status) {
+    const result = this.model.findItem(projectId, itemId);
+    if (!result) return;
+
+    result.item.status = status;
+    this.saveAndRefreshProjectList();
+  }
+
+  removeItemFromParent(parent, itemId) {
+    const initialLength = parent.items.length;
+    parent.items = parent.items.filter(item => item.id !== itemId);
+    return parent.items.length !== initialLength;
+  }
+
+  deleteItem(projectId, itemId) {
+    const project = this.findProject(projectId);
+    if (!project) return false;
+
+    if (this.removeItemFromParent(project, itemId)) {
+      return true;
+    }
+
+    return project.items.some(item => (
+      item.tier === "CHECKLIST"
+      && item.items
+      && this.removeItemFromParent(item, itemId)
+    ));
+  }
+
+  refreshProjectList() {
+    this.view.updateProjectList(this.model.projects);
+  }
+
+  saveAndRefreshProjectList() {
+    this.model.save();
+    this.refreshProjectList();
   }
 
   handleRestoreProject = (projectId) => {
-    const project = this.model.projects.find(p => p.id === projectId);
-    if (project) {
-      project.status = "ACTIVE";
-      this.model.save();
-      this.view.updateProjectList(this.model.projects);
-    }
+    this.setProjectStatus(projectId, "ACTIVE");
   };
 
   handleSidebarToggle = () => {
@@ -77,41 +160,20 @@ class Controller {
   };
 
   handleAddItemSubmit = (data) => {
-    const parentProject = this.model.projects.find(p => p.id === data.projectId);
-    if (!parentProject) return;
+    const targetParent = this.resolveItemParent(data);
+    if (!targetParent) return;
 
-    let targetParent = parentProject;
-    if (data.tier === "CHECKITEM" && data.checklistId) {
-      targetParent = parentProject.items.find(i => i.id === data.checklistId);
+    let item;
+    if (data.isEdit) {
+      item = targetParent.items.find(child => child.id === data.id);
+    } else {
+      this.model.createChild(data.title, data.tier, targetParent);
+      item = targetParent.items[targetParent.items.length - 1];
     }
 
-    if (targetParent) {
-      let item;
-      if (data.isEdit) {
-        item = targetParent.items.find(i => i.id === data.id);
-        if (item) {
-          item.title = data.title;
-        }
-      } else {
-        this.model.createChild(data.title, data.tier, targetParent);
-        item = targetParent.items[targetParent.items.length - 1];
-      }
-
-      if (item) {
-        if (data.tier !== "CHECKITEM") {
-          item.description = data.description;
-          if (data.dueDate) item.dueDateTime = data.dueDate;
-        }
-
-        item.status = data.status ? data.status.toUpperCase() : "ACTIVE";
-
-        if (data.tier === "TODO") {
-          item.note = data.note;
-          item.priority = data.priority;
-        }
-        this.model.save();
-        this.view.updateProjectList(this.model.projects);
-      }
+    if (item) {
+      this.applyItemFormFields(item, data);
+      this.saveAndRefreshProjectList();
     }
   };
 
@@ -123,89 +185,43 @@ class Controller {
   };
 
   handleDeleteItem = (projectId, itemId) => {
-    const project = this.model.projects.find(p => p.id === projectId);
-    if (project) {
-      // First tier
-      const initialLen = project.items.length;
-      project.items = project.items.filter(i => i.id !== itemId);
-
-      // If nothing was deleted, check nested checklists
-      if (project.items.length === initialLen) {
-        for (const item of project.items) {
-          if (item.tier === "CHECKLIST" && item.items) {
-            item.items = item.items.filter(ci => ci.id !== itemId);
-          }
-        }
-      }
-
-      this.model.save();
-      this.view.updateProjectList(this.model.projects);
+    if (this.deleteItem(projectId, itemId)) {
+      this.saveAndRefreshProjectList();
     }
   };
 
   handleDeleteProject = (projectId) => {
     this.model.deleteProject(projectId);
-    this.view.updateProjectList(this.model.projects);
+    this.refreshProjectList();
   };
 
   handleEditProject = (projectId) => {
-    const project = this.model.projects.find(p => p.id === projectId);
+    const project = this.findProject(projectId);
     if (project) {
       this.view.showModal(project);
     }
   };
 
   handleEditItem = (projectId, itemId) => {
-    const project = this.model.projects.find(p => p.id === projectId);
-    if (!project) return;
+    const result = this.model.findItem(projectId, itemId);
+    if (!result) return;
 
-    let item = project.items.find(i => i.id === itemId);
-    let tier = item ? item.tier : null;
-    let checklistId = null;
-
-    if (!item) {
-      for (const pItem of project.items) {
-        if (pItem.tier === "CHECKLIST" && pItem.items) {
-          item = pItem.items.find(ci => ci.id === itemId);
-          if (item) {
-            tier = "CHECKITEM";
-            checklistId = pItem.id;
-            break;
-          }
-        }
-      }
-    }
-
-    if (item) {
-      this.view.showItemModal(projectId, tier, checklistId, item);
-    }
+    const isCheckItem = result.parent !== result.project;
+    const tier = isCheckItem ? "CHECKITEM" : result.item.tier;
+    const checklistId = isCheckItem ? result.parent.id : null;
+    this.view.showItemModal(projectId, tier, checklistId, result.item);
   };
 
   handleCompleteTask = (projectId, itemId) => {
-    const result = this.model.findItem(projectId, itemId);
-    if (result) {
-      result.item.status = "COMPLETE";
-      this.model.save();
-      this.view.updateProjectList(this.model.projects);
-    }
+    this.setItemStatus(projectId, itemId, "COMPLETE");
   };
 
   handleRestoreTask = (projectId, itemId) => {
-    const result = this.model.findItem(projectId, itemId);
-    if (result) {
-      result.item.status = "ACTIVE";
-      this.model.save();
-      this.view.updateProjectList(this.model.projects);
-    }
+    this.setItemStatus(projectId, itemId, "ACTIVE");
   };
 
   handleCompleteProject = (projectId) => {
-    const project = this.model.projects.find(p => p.id === projectId);
-    if (project) {
-      project.status = "COMPLETE";
-      this.model.save();
-      this.view.updateProjectList(this.model.projects);
-    }
+    this.setProjectStatus(projectId, "COMPLETE");
   };
 
   handleToggleCompletedDrawer = (projectId) => {
@@ -213,7 +229,7 @@ class Controller {
   };
 
   handleToggleCompletedProjects = () => {
-    this.view.layout.sidebar.toggleCompletedDrawer();
+    this.view.toggleCompletedProjectsDrawer();
   };
 
   // simple trigger to display the ui.
@@ -223,29 +239,19 @@ class Controller {
 
   // logic to process the actual form data.
   handleAddProject = (data) => {
+    let project;
+
     if (data.isEdit) {
-      const project = this.model.projects.find(p => p.id === data.id);
-      if (project) {
-        project.title = data.title;
-        project.description = data.description;
-        project.status = data.status ? data.status.toUpperCase() : "ACTIVE";
-        project.note = data.note;
-        project.priority = data.priority;
-        if (data.dueDate) project.dueDateTime = data.dueDate;
-      }
+      project = this.findProject(data.id);
     } else {
       this.model.createProject(data.title, data.description);
-      const newProject = this.model.projects[this.model.projects.length - 1];
-      newProject.status = data.status ? data.status.toUpperCase() : "ACTIVE";
-      newProject.note = data.note;
-      newProject.priority = data.priority;
-      if (data.dueDate) newProject.dueDateTime = data.dueDate;
+      project = this.model.projects[this.model.projects.length - 1];
     }
 
-    this.model.save();
-
-    // refresh the view
-    this.view.updateProjectList(this.model.projects);
+    if (project) {
+      this.applyProjectFormFields(project, data);
+      this.saveAndRefreshProjectList();
+    }
   };
 
   // initial application data synchronization between model and view.
@@ -253,7 +259,7 @@ class Controller {
     this.initTheme();
     // we fetch the current projects from the model and tell the
     // view facade to update the project navigation in the sidebar.
-    this.view.updateProjectList(this.model.projects);
+    this.refreshProjectList();
   }
 
   initTheme() {

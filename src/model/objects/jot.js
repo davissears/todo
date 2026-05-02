@@ -1,3 +1,32 @@
+const VALID_TIERS = ["PROJECT", "TODO", "CHECKLIST", "CHECKITEM"];
+const VALID_STATUSES = ["COMPLETE", "ACTIVE", "BLOCKED"];
+
+function isBlankValue(value) {
+  return value === undefined || value === null || value === "";
+}
+
+function normalizeStatus(status) {
+  if (isBlankValue(status)) return undefined;
+
+  const normalizedStatus = status.toString().toUpperCase();
+  if (VALID_STATUSES.includes(normalizedStatus)) {
+    return normalizedStatus;
+  }
+
+  throw new Error(`invalid jot status value: ${status}`);
+}
+
+function getDateValue(value) {
+  return typeof value === "object" && value.date ? value.date : value;
+}
+
+function normalizeDueDateTime(value) {
+  if (isBlankValue(value)) return undefined;
+
+  const newDate = new Date(getDateValue(value));
+  return isNaN(newDate.getTime()) ? undefined : { date: newDate };
+}
+
 export default class Jot {
   #title;
   #id = crypto.randomUUID();
@@ -22,8 +51,7 @@ export default class Jot {
     return this.#tier;
   }
   set tier(tier) {
-    const validTiers = ["PROJECT", "TODO", "CHECKLIST", "CHECKITEM"];
-    if (validTiers.includes(tier)) {
+    if (VALID_TIERS.includes(tier)) {
       this.#tier = tier; // remove `return`
     } else {
       throw new Error(`invalid jot tier value:${tier}`);
@@ -55,17 +83,7 @@ export default class Jot {
     return this.#status;
   }
   set status(status) {
-    if (status === undefined || status === null || status === "") {
-      this.#status = undefined;
-      return;
-    }
-    const normalizedStatus = status.toString().toUpperCase();
-    const validStatus = ["COMPLETE", "ACTIVE", "BLOCKED"];
-    if (validStatus.includes(normalizedStatus)) {
-      this.#status = normalizedStatus;
-    } else {
-      throw new Error(`invalid jot status value: ${status}`);
-    }
+    this.#status = normalizeStatus(status);
   }
 
   get dueDateTime() {
@@ -73,24 +91,6 @@ export default class Jot {
   }
 
   set dueDateTime(value) {
-    if (value === undefined || value === null || value === "") {
-      this.#dueDateTime = undefined;
-      return;
-    }
-
-    // Extract date from various possible formats
-    let dateValue = value;
-    if (typeof value === 'object' && value.date) {
-      dateValue = value.date;
-    }
-    
-    const newDate = new Date(dateValue);
-
-    if (!isNaN(newDate.getTime())) {
-      // Store as a simple object with a date property for consistent serialization
-      this.#dueDateTime = { date: newDate };
-    } else {
-      this.#dueDateTime = undefined;
-    }
+    this.#dueDateTime = normalizeDueDateTime(value);
   }
 }

@@ -1,4 +1,160 @@
 import { createElement } from "./domService";
+import {
+  createPrioritySelect,
+  formatDateTimeLocal,
+  getNoteValue,
+  getPriorityValue,
+  setInputValue,
+} from "./modalFormHelpers";
+
+const CREATE_TITLES = {
+  TODO: "Create New Todo",
+  CHECKLIST: "Create New Checklist",
+  CHECKITEM: "Create New Check Item",
+};
+
+function getCreateTitle(tier) {
+  return CREATE_TITLES[tier] || "Create New Item";
+}
+
+function getEditTitle(tier) {
+  return `Edit ${tier.charAt(0) + tier.slice(1).toLowerCase()}`;
+}
+
+function createTierToggle(tier, onChange) {
+  if (tier === "CHECKITEM") return null;
+
+  const toggleContainer = createElement("div", { class: "modal-toggle-container" }, [
+    createElement("span", {}, "Type: "),
+    createElement("button", {
+      type: "button",
+      class: `toggle-btn ${tier === "TODO" ? "active" : ""}`,
+      "data-tier": "TODO"
+    }, "Todo"),
+    createElement("button", {
+      type: "button",
+      class: `toggle-btn ${tier === "CHECKLIST" ? "active" : ""}`,
+      "data-tier": "CHECKLIST"
+    }, "Checklist")
+  ]);
+
+  toggleContainer.addEventListener("click", (e) => {
+    const toggleButton = e.target.closest(".toggle-btn");
+    if (toggleButton) {
+      onChange(toggleButton.dataset.tier);
+    }
+  });
+
+  return toggleContainer;
+}
+
+function createTitleFields() {
+  return [
+    createElement("label", { for: "item-title-input" }, "Title"),
+    createElement("input", {
+      id: "item-title-input",
+      type: "text",
+      name: "title",
+      required: "true",
+      placeholder: "e.g., Buy groceries"
+    })
+  ];
+}
+
+function createDescriptionFields() {
+  return [
+    createElement("label", { for: "item-desc-input" }, "Description"),
+    createElement("textarea", {
+      id: "item-desc-input",
+      name: "description",
+      placeholder: "add some details..."
+    })
+  ];
+}
+
+function createStatusFields() {
+  return [
+    createElement("label", { for: "item-status-input" }, "Status"),
+    createElement("select", { id: "item-status-input", name: "status" }, [
+      createElement("option", { value: "ACTIVE" }, "Active"),
+      createElement("option", { value: "COMPLETE" }, "Complete"),
+      createElement("option", { value: "BLOCKED" }, "Blocked"),
+    ])
+  ];
+}
+
+function createDueDateFields() {
+  return [
+    createElement("label", { for: "item-dueDate-input" }, "Due Date"),
+    createElement("input", {
+      id: "item-dueDate-input",
+      type: "datetime-local",
+      name: "dueDate"
+    })
+  ];
+}
+
+function createTodoFields() {
+  return [
+    createElement("label", { for: "item-note-input" }, "Note"),
+    createElement("input", {
+      id: "item-note-input",
+      type: "text",
+      name: "note",
+      placeholder: "private notes..."
+    }),
+    createElement("label", { for: "item-priority-input" }, "Priority"),
+    createPrioritySelect({ id: "item-priority-input" })
+  ];
+}
+
+function createFieldsForTier(tier) {
+  const fields = [...createTitleFields()];
+
+  if (tier !== "CHECKITEM") {
+    fields.push(...createDescriptionFields());
+  }
+
+  fields.push(...createStatusFields());
+
+  if (tier !== "CHECKITEM") {
+    fields.push(...createDueDateFields());
+  }
+
+  if (tier === "TODO") {
+    fields.push(...createTodoFields());
+  }
+
+  return fields;
+}
+
+function createModalActions(onCancel) {
+  const cancelBtn = createElement("button", {
+    type: "button",
+    className: "btn-secondary"
+  }, "cancel");
+
+  cancelBtn.addEventListener("click", onCancel);
+
+  return createElement("div", { className: "modal-actions" }, [
+    cancelBtn,
+    createElement("button", {
+      type: "submit",
+      className: "btn-primary"
+    }, "Add Item")
+  ]);
+}
+
+function setDueDateValue(form, data) {
+  if (data.dueDateTime) {
+    setInputValue(form, "#item-dueDate-input", formatDateTimeLocal(data.dueDateTime.date));
+  }
+}
+
+function setTodoValues(form, data) {
+  setInputValue(form, "#item-note-input", getNoteValue(data.note));
+  setInputValue(form, "#item-priority-input", getPriorityValue(data.priority));
+}
 
 export default class ItemModal {
   constructor(rootElement) {
@@ -20,127 +176,22 @@ export default class ItemModal {
   render() {
     this.dialog.replaceChildren();
 
-    let titleText = "Create New Item";
-    if (this.tier === "TODO") titleText = "Create New Todo";
-    else if (this.tier === "CHECKLIST") titleText = "Create New Checklist";
-    else if (this.tier === "CHECKITEM") titleText = "Create New Check Item";
-    
-    // Toggle switch - only show for TODO vs CHECKLIST
-    const toggleContainer = this.tier !== "CHECKITEM" ? createElement("div", { class: "modal-toggle-container" }, [
-      createElement("span", {}, "Type: "),
-      createElement("button", {
-        type: "button",
-        class: `toggle-btn ${this.tier === "TODO" ? "active" : ""}`,
-        "data-tier": "TODO"
-      }, "Todo"),
-      createElement("button", {
-        type: "button",
-        class: `toggle-btn ${this.tier === "CHECKLIST" ? "active" : ""}`,
-        "data-tier": "CHECKLIST"
-      }, "Checklist")
-    ]) : null;
-
-    if (toggleContainer) {
-      toggleContainer.addEventListener("click", (e) => {
-        if (e.target.classList.contains("toggle-btn")) {
-          this.tier = e.target.dataset.tier;
-          this.render();
-        }
-      });
-    }
-
-    const cancelBtn = createElement("button", {
-      type: "button",
-      className: "btn-secondary"
-    }, "cancel");
-
-    cancelBtn.addEventListener("click", () => this.close());
-
-    const submitBtn = createElement("button", {
-      type: "submit",
-      className: "btn-primary"
-    }, "Add Item");
-
     const formChildren = [
-      createElement("h2", { id: "item-modal-title" }, titleText),
+      createElement("h2", { id: "item-modal-title" }, getCreateTitle(this.tier)),
     ];
 
-    if (toggleContainer) formChildren.push(toggleContainer);
-    
-    formChildren.push(
-      // title
-      createElement("label", { for: "item-title-input" }, "Title"),
-      createElement("input", {
-        id: "item-title-input",
-        type: "text",
-        name: "title",
-        required: "true",
-        placeholder: "e.g., Buy groceries"
-      })
-    );
+    const toggleContainer = createTierToggle(this.tier, (tier) => {
+      this.tier = tier;
+      this.render();
+    });
 
-    // Checkitems only need title and status (maybe desc)
-    if (this.tier !== "CHECKITEM") {
-      formChildren.push(
-        // desc
-        createElement("label", { for: "item-desc-input" }, "Description"),
-        createElement("textarea", {
-          id: "item-desc-input",
-          name: "description",
-          placeholder: "add some details..."
-        })
-      );
+    if (toggleContainer) {
+      formChildren.push(toggleContainer);
     }
 
     formChildren.push(
-      // status
-      createElement("label", { for: "item-status-input" }, "Status"),
-      createElement("select", { id: "item-status-input", name: "status" }, [
-        createElement("option", { value: "ACTIVE" }, "Active"),
-        createElement("option", { value: "COMPLETE" }, "Complete"),
-        createElement("option", { value: "BLOCKED" }, "Blocked"),
-      ])
-    );
-
-    if (this.tier !== "CHECKITEM") {
-      formChildren.push(
-        // due date
-        createElement("label", { for: "item-dueDate-input" }, "Due Date"),
-        createElement("input", {
-          id: "item-dueDate-input",
-          type: "datetime-local",
-          name: "dueDate"
-        })
-      );
-    }
-
-    // Todo-specific fields
-    if (this.tier === "TODO") {
-      formChildren.push(
-        createElement("label", { for: "item-note-input" }, "Note"),
-        createElement("input", {
-          id: "item-note-input",
-          type: "text",
-          name: "note",
-          placeholder: "private notes..."
-        }),
-
-        createElement("label", { for: "item-priority-input" }, "Priority"),
-        createElement("select", { id: "item-priority-input", name: "priority" }, [
-          createElement("option", { value: "NONE" }, "None"),
-          createElement("option", { value: "LOW" }, "Low"),
-          createElement("option", { value: "MED" }, "Medium"),
-          createElement("option", { value: "HIGH" }, "High"),
-          createElement("option", { value: "EMERGENCY" }, "Emergency"),
-        ])
-      );
-    }
-
-    formChildren.push(
-      createElement("div", { className: "modal-actions" }, [
-        cancelBtn,
-        submitBtn
-      ])
+      ...createFieldsForTier(this.tier),
+      createModalActions(() => this.close())
     );
 
     this.form = createElement("form", { className: "modal-form" }, formChildren);
@@ -163,7 +214,7 @@ export default class ItemModal {
     
     if (data) {
       this.setFormData(data);
-      this.dialog.querySelector("#item-modal-title").textContent = `Edit ${this.tier.charAt(0) + this.tier.slice(1).toLowerCase()}`;
+      this.dialog.querySelector("#item-modal-title").textContent = getEditTitle(this.tier);
       this.dialog.querySelector('button[type="submit"]').textContent = "Update Item";
     }
 
@@ -171,29 +222,11 @@ export default class ItemModal {
   }
 
   setFormData(data) {
-    const titleInput = this.form.querySelector("#item-title-input");
-    const descInput = this.form.querySelector("#item-desc-input");
-    const statusInput = this.form.querySelector("#item-status-input");
-    const dueDateInput = this.form.querySelector("#item-dueDate-input");
-    const noteInput = this.form.querySelector("#item-note-input");
-    const priorityInput = this.form.querySelector("#item-priority-input");
-
-    if (titleInput) titleInput.value = data.title || "";
-    if (descInput) descInput.value = data.description || "";
-    if (statusInput) statusInput.value = data.status || "ACTIVE";
-    
-    if (dueDateInput && data.dueDateTime) {
-      const date = new Date(data.dueDateTime.date);
-      const formattedDate = date.toISOString().slice(0, 16);
-      dueDateInput.value = formattedDate;
-    }
-
-    if (noteInput) {
-      noteInput.value = (typeof data.note === 'string' ? data.note : (data.note ? data.note.note : "")) || "";
-    }
-    if (priorityInput) {
-      priorityInput.value = (typeof data.priority === 'string' ? data.priority : (data.priority ? data.priority.priority : "NONE")) || "NONE";
-    }
+    setInputValue(this.form, "#item-title-input", data.title || "");
+    setInputValue(this.form, "#item-desc-input", data.description || "");
+    setInputValue(this.form, "#item-status-input", data.status || "ACTIVE");
+    setDueDateValue(this.form, data);
+    setTodoValues(this.form, data);
   }
 
   close() {

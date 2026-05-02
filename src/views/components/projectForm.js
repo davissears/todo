@@ -1,4 +1,17 @@
 import { createElement } from "./domService";
+import {
+  createPrioritySelect,
+  formatDateTimeLocal,
+  getNoteValue,
+  getPriorityValue,
+  setInputValue,
+} from "./modalFormHelpers";
+
+function setProjectDueDateValue(form, data) {
+  if (data.dueDateTime) {
+    setInputValue(form, "#project-dueDate-input", formatDateTimeLocal(data.dueDateTime.date));
+  }
+}
 
 export default class Modal {
   constructor(rootElement) {
@@ -79,13 +92,7 @@ export default class Modal {
 
       // priority
       createElement("label", { for: "project-priority-input" }, "Priority"),
-      createElement("select", { id: "project-priority-input", name: "priority" }, [
-        createElement("option", { value: "NONE" }, "None"),
-        createElement("option", { value: "LOW" }, "Low"),
-        createElement("option", { value: "MED" }, "Medium"),
-        createElement("option", { value: "HIGH" }, "High"),
-        createElement("option", { value: "EMERGENCY" }, "Emergency"),
-      ]),
+      createPrioritySelect({ id: "project-priority-input" }),
 
       // due date
       createElement("label", { for: "project-dueDate-input" }, "Due Date"),
@@ -123,25 +130,12 @@ export default class Modal {
   }
 
   setFormData(data) {
-    const titleInput = this.form.querySelector("#project-title-input");
-    const descInput = this.form.querySelector("#project-desc-input");
-    const statusInput = this.form.querySelector("#project-status-input");
-    const noteInput = this.form.querySelector("#project-note-input");
-    const priorityInput = this.form.querySelector("#project-priority-input");
-    const dueDateInput = this.form.querySelector("#project-dueDate-input");
-
-    if (titleInput) titleInput.value = data.title || "";
-    if (descInput) descInput.value = data.description || "";
-    if (statusInput) statusInput.value = data.status || "ACTIVE";
-    if (noteInput) noteInput.value = (typeof data.note === 'string' ? data.note : (data.note ? data.note.note : "")) || "";
-    if (priorityInput) priorityInput.value = (typeof data.priority === 'string' ? data.priority : (data.priority ? data.priority.priority : "NONE")) || "NONE";
-    
-    if (dueDateInput && data.dueDateTime) {
-      const date = new Date(data.dueDateTime.date);
-      // Format for datetime-local: YYYY-MM-DDTHH:mm
-      const formattedDate = date.toISOString().slice(0, 16);
-      dueDateInput.value = formattedDate;
-    }
+    setInputValue(this.form, "#project-title-input", data.title || "");
+    setInputValue(this.form, "#project-desc-input", data.description || "");
+    setInputValue(this.form, "#project-status-input", data.status || "ACTIVE");
+    setInputValue(this.form, "#project-note-input", getNoteValue(data.note));
+    setInputValue(this.form, "#project-priority-input", getPriorityValue(data.priority));
+    setProjectDueDateValue(this.form, data);
   }
 
   close() {

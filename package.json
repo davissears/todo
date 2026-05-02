@@ -1,8 +1,6 @@
 {
   "name": "todo",
   "module": "src/index.js",
-  "type": "module",
-  "private": true,
   "devDependencies": {
     "@biomejs/biome": "^2.3.11",
     "@happy-dom/global-registrator": "^20.8.9",
@@ -11,13 +9,12 @@
   "peerDependencies": {
     "typescript": "^5"
   },
+  "private": true,
   "scripts": {
     "dev": "bun run ./dev.ts --hot",
     "build": "bun ./build.ts",
     "deploy": "bun run build && bunx wrangler deploy",
     "test:unit": "bun test --dom tests/unit"
   },
-  "dependencies": {
-    "date-fns": "^4.1.0"
-  }
+  "type": "module"
 }

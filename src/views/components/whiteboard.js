@@ -1,5 +1,325 @@
 import { createElement } from "./domService";
 
+const DEFAULT_STATUS = "ACTIVE";
+const DEFAULT_PRIORITY = "NONE";
+
+function normalizeWrappedText(value, key) {
+  if (!value) return "";
+  return typeof value === "string" ? value : (value[key] || "");
+}
+
+function getNoteText(note) {
+  return normalizeWrappedText(note, "note");
+}
+
+function getPriorityText(priority) {
+  return normalizeWrappedText(priority, "priority");
+}
+
+function getPriorityDisplay(priority, fallback = DEFAULT_PRIORITY) {
+  return (getPriorityText(priority) || fallback).toString();
+}
+
+function getPriorityClass(priority, fallback = DEFAULT_PRIORITY) {
+  return `priority-${getPriorityDisplay(priority, fallback).toLowerCase()}`;
+}
+
+function formatDateTime(dateTime, fallback = "") {
+  if (!dateTime) return fallback;
+  const dateValue = dateTime.date || dateTime;
+  return new Date(dateValue).toLocaleString();
+}
+
+function createDetailRow(label, value, valueAttributes = { class: "detail-value" }) {
+  return createElement("div", { class: "detail-row" }, [
+    createElement("span", { class: "detail-label" }, label),
+    createElement("span", valueAttributes, value)
+  ]);
+}
+
+function createOptionalDetailRow(label, value, valueAttributes) {
+  return value ? createDetailRow(label, value, valueAttributes) : null;
+}
+
+function formatOptionalDateTime(dateTime) {
+  return dateTime ? formatDateTime(dateTime) : "";
+}
+
+function createIconButton(className, attributes, iconName) {
+  return createElement("button", {
+    class: className,
+    ...attributes
+  }, createElement("span", { class: "material-icons" }, iconName));
+}
+
+function createDrawerActions(actionButtons) {
+  return createElement("div", { class: "drawer-actions" }, actionButtons);
+}
+
+function createProjectActionButtons(project) {
+  const actionButtons = [];
+
+  if (project.status !== "COMPLETE") {
+    actionButtons.push(createIconButton("complete-project-btn", {
+      "data-id": project.id,
+      "title": "Complete project"
+    }, "check_circle"));
+  }
+
+  actionButtons.push(
+    createIconButton("edit-project-btn", {
+      "data-id": project.id,
+      "title": "Edit project"
+    }, "edit"),
+    createIconButton("delete-project-btn", {
+      "data-id": project.id,
+      "title": "Delete project"
+    }, "delete")
+  );
+
+  return actionButtons;
+}
+
+function createProjectDetailRows(project) {
+  const noteText = getNoteText(project.note);
+  const priorityText = getPriorityDisplay(project.priority);
+
+  return [
+    createOptionalDetailRow("Description", project.description),
+    createDetailRow("Status", project.status || DEFAULT_STATUS),
+    createOptionalDetailRow("Due Date", formatOptionalDateTime(project.dueDateTime)),
+    createOptionalDetailRow("Note", noteText),
+    createDetailRow("Priority", priorityText, {
+      class: `priority-tag ${getPriorityClass(project.priority)}`
+    })
+  ].filter(Boolean);
+}
+
+function createProjectDetailsColumn(project) {
+  return createElement("div", { class: "project-details-column" }, [
+    createElement("p", {
+      style: "font-size: 0.8rem; text-transform: uppercase; color: var(--text-secondary); margin: 0;"
+    }, "Project Details"),
+    ...createProjectDetailRows(project),
+    createDrawerActions(createProjectActionButtons(project))
+  ]);
+}
+
+function getItemPriorityClass(item) {
+  return item.tier === "TODO" ? getPriorityClass(item.priority) : "";
+}
+
+function createDrawerItem(item, projectId, { completed = false } = {}) {
+  const priorityClass = getItemPriorityClass(item);
+  const buttonClasses = [
+    "drawer-item-btn",
+    completed ? "item-completed" : "",
+    `item-${item.tier.toLowerCase()}`,
+    priorityClass
+  ].filter(Boolean).join(" ");
+  const buttonAttributes = {
+    class: buttonClasses,
+    "data-id": item.id,
+    "data-project-id": projectId
+  };
+
+  if (!completed) {
+    buttonAttributes["aria-label"] = `View details for ${item.title}`;
+  }
+
+  return createElement("li", { class: "item-wrapper" }, [
+    createElement("button", buttonAttributes, [
+      createElement("span", { class: "item-title" }, item.title)
+    ]),
+    createElement("div", {
+      class: "drawer-vertical item-detail-drawer",
+      "data-item-id": item.id,
+    })
+  ]);
+}
+
+function createCompletedTasksTrigger(projectId, completedCount) {
+  if (completedCount === 0) return null;
+
+  return createElement("li", { class: "item-wrapper" }, [
+    createElement("button", {
+      class: "drawer-item-btn completed-tasks-btn",
+      "data-project-id": projectId,
+    }, `Completed Tasks (${completedCount})`)
+  ]);
+}
+
+function createInlineAddItemButton(project) {
+  return createElement("li", { class: "item-wrapper" }, [
+    createElement("button", {
+      class: "drawer-item-btn add-item-inline-btn",
+      "data-project-id": project.id,
+      "aria-label": `Add new item to ${project.title}`
+    }, "+ Add")
+  ]);
+}
+
+function createProjectVerticalContent(project) {
+  const note = getNoteText(project.note);
+
+  return createElement("div", { class: "detail-content" }, [
+    createDetailRow("Description", project.description || "No description provided."),
+    createDetailRow("Due Date", formatDateTime(project.dueDateTime, "No due date.")),
+    createDetailRow("Note", note || "No notes."),
+    createElement("button", {
+      class: "add-item-btn",
+      "data-project-id": project.id
+    }, "+ Add Todo or Checklist"),
+    createDrawerActions([
+      createElement("button", {
+        class: "edit-project-btn",
+        "data-id": project.id
+      }, "Edit"),
+      createElement("button", {
+        class: "delete-project-btn",
+        "data-id": project.id
+      }, "Delete")
+    ])
+  ]);
+}
+
+function createBaseItemDetailRows(item) {
+  return [
+    createDetailRow("Description", item.description || "No description provided."),
+    createDetailRow("Status", item.status || DEFAULT_STATUS),
+    createDetailRow("Due Date", formatDateTime(item.dueDateTime, "No due date."))
+  ];
+}
+
+function createTodoDetailRows(item) {
+  const noteText = getNoteText(item.note);
+  const priorityText = getPriorityDisplay(item.priority);
+
+  return [
+    createDetailRow("Note", noteText || "No notes."),
+    createDetailRow("Priority", priorityText, {
+      class: `priority-tag ${getPriorityClass(item.priority)}`
+    })
+  ];
+}
+
+function createCheckItem(checkItem, checklistId, projectId) {
+  return createElement("li", {
+    class: "check-item-wrapper",
+    style: "margin-bottom: 0.5rem;"
+  }, [
+    createElement("button", {
+      class: `drawer-item-btn check-item-btn ${checkItem.status === "COMPLETE" ? "item-completed" : ""}`,
+      "data-id": checkItem.id,
+      "data-checklist-id": checklistId,
+      "data-project-id": projectId,
+      style: "width: 100%; text-align: left;"
+    }, checkItem.title),
+    createElement("div", {
+      class: "drawer-vertical item-detail-drawer check-item-detail-drawer",
+      "data-item-id": checkItem.id,
+    })
+  ]);
+}
+
+function createChecklistSection(checklist, projectId) {
+  const section = [];
+
+  if (checklist.items && checklist.items.length > 0) {
+    section.push(createElement("h5", {
+      style: "margin: 1rem 0 0.5rem 0; color: var(--text-secondary);"
+    }, "Items"));
+    section.push(createElement("ul", {
+      class: "check-items-list",
+      style: "list-style: none; padding: 0; margin-bottom: 1.5rem;"
+    }, checklist.items.map(checkItem => createCheckItem(checkItem, checklist.id, projectId))));
+  }
+
+  section.push(createElement("button", {
+    class: "add-checkitem-btn",
+    "data-checklist-id": checklist.id,
+    "data-project-id": projectId
+  }, "+ Add Check Item"));
+
+  return section;
+}
+
+function createTaskActionButtons(item, projectId) {
+  const isComplete = item.status === "COMPLETE";
+  const stateButton = isComplete
+    ? createIconButton("restore-task-btn", {
+      "data-id": item.id,
+      "data-project-id": projectId,
+      "title": "Restore task"
+    }, "settings_backup_restore")
+    : createIconButton("complete-task-btn", {
+      "data-id": item.id,
+      "data-project-id": projectId,
+      "title": "Complete task"
+    }, "check_circle");
+
+  return [
+    stateButton,
+    createIconButton("edit-item-btn", {
+      "data-id": item.id,
+      "data-project-id": projectId,
+      "title": "Edit task"
+    }, "edit"),
+    createIconButton("delete-item-btn", {
+      "data-id": item.id,
+      "data-project-id": projectId,
+      "title": "Delete task"
+    }, "delete")
+  ];
+}
+
+function createItemDetailContent(item, projectId) {
+  const contentChildren = [...createBaseItemDetailRows(item)];
+
+  if (item.tier === "TODO") {
+    contentChildren.push(...createTodoDetailRows(item));
+  }
+
+  if (item.tier === "CHECKLIST") {
+    contentChildren.push(...createChecklistSection(item, projectId));
+  }
+
+  contentChildren.push(createDrawerActions(createTaskActionButtons(item, projectId)));
+
+  return createElement("div", { class: "detail-content" }, contentChildren);
+}
+
+function collectProjectListState(root) {
+  return {
+    openHorizontal: new Set(Array.from(root.querySelectorAll(".drawer-horizontal.open")).map(el => el.dataset.id)),
+    openVertical: new Set(Array.from(root.querySelectorAll(".drawer-vertical.open")).map(el => el.dataset.id)),
+    openItems: new Set(Array.from(root.querySelectorAll(".item-detail-drawer.open")).map(el => el.dataset.itemId)),
+    expandedButtons: new Set(Array.from(root.querySelectorAll(".drawer-item-btn.expanded")).map(el => el.dataset.id)),
+  };
+}
+
+function restoreProjectDrawerState(container, projectId, state) {
+  if (state.openHorizontal.has(projectId)) {
+    container.querySelector(".drawer-horizontal").classList.add("open");
+  }
+  if (state.openVertical.has(projectId)) {
+    container.querySelector(".drawer-vertical").classList.add("open");
+  }
+}
+
+function restoreExpandedItem(container, itemId, expandedButtons) {
+  if (!expandedButtons.has(itemId)) return;
+
+  const btn = container.querySelector(`.drawer-item-btn[data-id="${itemId}"]`);
+  if (!btn) return;
+
+  btn.classList.add("expanded");
+  const wrapper = btn.closest(".item-wrapper, .check-item-wrapper");
+  if (wrapper) {
+    wrapper.classList.add("expanded");
+  }
+}
+
 export default class Whiteboard {
   constructor(rootElement) {
     if (!rootElement) {
@@ -19,66 +339,13 @@ export default class Whiteboard {
 
   // surgical render: update the list of projects while preserving open drawer states.
   renderProjectList(projects) {
-    const openHorizontal = Array.from(this.root.querySelectorAll(".drawer-horizontal.open")).map(el => el.dataset.id);
-    const openVertical = Array.from(this.root.querySelectorAll(".drawer-vertical.open")).map(el => el.dataset.id);
-    const openItems = Array.from(this.root.querySelectorAll(".item-detail-drawer.open")).map(el => el.dataset.itemId);
-    
-    // Preserve expanded state for item-wrappers and buttons
-    const expandedButtons = Array.from(this.root.querySelectorAll(".drawer-item-btn.expanded"))
-      .map(el => el.dataset.id);
-
+    const state = collectProjectListState(this.root);
     const activeProjects = projects.filter(p => p.status !== "COMPLETE");
 
     const projectElements = activeProjects.map(project => {
       const container = this.createProjectElement(project);
-      
-      if (openHorizontal.includes(project.id)) {
-        container.querySelector(".drawer-horizontal").classList.add("open");
-      }
-      if (openVertical.includes(project.id)) {
-        container.querySelector(".drawer-vertical").classList.add("open");
-      }
-      
-      // Check for open item drawers within this project (and its nested checkitems)
-      project.items.forEach(item => {
-        // Restore expanded states for the item itself
-        if (expandedButtons.includes(item.id)) {
-          const btn = container.querySelector(`.drawer-item-btn[data-id="${item.id}"]`);
-          if (btn) {
-            btn.classList.add("expanded");
-            // Also restore the wrapper's expanded state
-            const wrapper = btn.closest(".item-wrapper, .check-item-wrapper");
-            if (wrapper) wrapper.classList.add("expanded");
-          }
-        }
-
-        const restoreDrawer = (targetItem, targetId) => {
-          if (openItems.includes(targetId)) {
-            const itemDrawer = container.querySelector(`.item-detail-drawer[data-item-id="${targetId}"]`);
-            if (itemDrawer) {
-              this.renderItemDetailDrawer(targetItem, itemDrawer, project.id, false);
-              itemDrawer.classList.add("open");
-            }
-          }
-        };
-
-        restoreDrawer(item, item.id);
-        
-        if (item.tier === "CHECKLIST" && item.items) {
-          item.items.forEach(checkItem => {
-            // Restore expanded states for nested checkitems
-            if (expandedButtons.includes(checkItem.id)) {
-              const btn = container.querySelector(`.drawer-item-btn[data-id="${checkItem.id}"]`);
-              if (btn) {
-                btn.classList.add("expanded");
-                const wrapper = btn.closest(".check-item-wrapper, .item-wrapper");
-                if (wrapper) wrapper.classList.add("expanded");
-              }
-            }
-            restoreDrawer(checkItem, checkItem.id);
-          });
-        }
-      });
+      restoreProjectDrawerState(container, project.id, state);
+      this.restoreProjectItemState(container, project, state);
 
       return container;
     });
@@ -86,9 +353,33 @@ export default class Whiteboard {
     this.projectListContainer.replaceChildren(...projectElements);
   }
 
+  restoreProjectItemState(container, project, state) {
+    project.items.forEach(item => {
+      this.restoreItemState(container, project.id, item, state);
+
+      if (item.tier === "CHECKLIST" && item.items) {
+        item.items.forEach(checkItem => {
+          this.restoreItemState(container, project.id, checkItem, state);
+        });
+      }
+    });
+  }
+
+  restoreItemState(container, projectId, item, state) {
+    restoreExpandedItem(container, item.id, state.expandedButtons);
+
+    if (state.openItems.has(item.id)) {
+      const itemDrawer = container.querySelector(`.item-detail-drawer[data-item-id="${item.id}"]`);
+      if (itemDrawer) {
+        this.renderItemDetailDrawer(item, itemDrawer, projectId, false);
+        itemDrawer.classList.add("open");
+      }
+    }
+  }
+
   createProjectElement(project) {
     const isComplete = project.status === "COMPLETE";
-    const priority = project.priority ? (typeof project.priority === 'string' ? project.priority : project.priority.priority) : "NONE";
+    const priority = getPriorityDisplay(project.priority);
     const header = createElement(
       "button",
       {
@@ -135,325 +426,40 @@ export default class Whiteboard {
     const activeItems = project.items.filter(item => item.status !== "COMPLETE");
     const completedItems = project.items.filter(item => item.status === "COMPLETE");
 
-    // Project Details Column
-    const getNoteText = (obj) => {
-      if (!obj) return "";
-      return typeof obj === "string" ? obj : (obj.note || "");
-    };
-    const getPriorityText = (obj) => {
-      if (!obj) return "";
-      return typeof obj === "string" ? obj : (obj.priority || "");
-    };
-
-    const noteText = getNoteText(project.note);
-    const priorityText = getPriorityText(project.priority);
-    const detailRows = [];
-
-    if (project.description) {
-      detailRows.push(createElement("div", { class: "detail-row" }, [
-        createElement("span", { class: "detail-label" }, "Description"),
-        createElement("span", { class: "detail-value" }, project.description)
-      ]));
-    }
-    
-    // Always show status for project, default to ACTIVE if missing
-    const statusText = project.status || "ACTIVE";
-    detailRows.push(createElement("div", { class: "detail-row" }, [
-      createElement("span", { class: "detail-label" }, "Status"),
-      createElement("span", { class: "detail-value" }, statusText)
-    ]));
-
-    if (project.dueDateTime) {
-      const dateValue = project.dueDateTime.date || project.dueDateTime;
-      detailRows.push(createElement("div", { class: "detail-row" }, [
-        createElement("span", { class: "detail-label" }, "Due Date"),
-        createElement("span", { class: "detail-value" }, new Date(dateValue).toLocaleString())
-      ]));
-    }
-    if (noteText) {
-      detailRows.push(createElement("div", { class: "detail-row" }, [
-        createElement("span", { class: "detail-label" }, "Note"),
-        createElement("span", { class: "detail-value" }, noteText)
-      ]));
-    }
-    
-    // Always show priority
-    const displayPriority = (priorityText || "NONE").toString();
-    detailRows.push(createElement("div", { class: "detail-row" }, [
-      createElement("span", { class: "detail-label" }, "Priority"),
-      createElement("span", { 
-        class: `priority-tag priority-${displayPriority.toLowerCase()}` 
-      }, displayPriority)
-    ]));
-
-    const detailsColumn = createElement("div", { class: "project-details-column" }, [
-      createElement("p", { style: "font-size: 0.8rem; text-transform: uppercase; color: var(--text-secondary); margin: 0;" }, "Project Details"),
-      ...detailRows,
-      createElement("div", { class: "drawer-actions" }, [
-        ...(project.status !== "COMPLETE" ? [
-          createElement("button", {
-            class: "complete-project-btn",
-            "data-id": project.id,
-            "title": "Complete project"
-          }, createElement("span", { class: "material-icons" }, "check_circle"))
-        ] : []),
-        createElement("button", { 
-          class: "edit-project-btn", 
-          "data-id": project.id,
-          "title": "Edit project"
-        }, createElement("span", { class: "material-icons" }, "edit")),
-        createElement("button", { 
-          class: "delete-project-btn", 
-          "data-id": project.id,
-          "title": "Delete project"
-        }, createElement("span", { class: "material-icons" }, "delete"))
-      ])
-    ]);
-
     const itemsList = createElement(
       "ul",
       { class: "drawer-items-list" },
       [
-        ...activeItems.map((item) => {
-          const priorityClass = item.tier === "TODO" 
-            ? `priority-${(typeof item.priority === 'string' ? item.priority : item.priority?.priority || 'none').toLowerCase()}` 
-            : "";
-          return createElement(
-            "li",
-            { class: "item-wrapper" },
-            [
-              createElement(
-                "button",
-                {
-                  class: `drawer-item-btn item-${item.tier.toLowerCase()} ${priorityClass}`,
-                  "data-id": item.id,
-                  "data-project-id": project.id,
-                  "aria-label": `View details for ${item.title}`,
-                },
-                [
-                  createElement("span", { class: "item-title" }, item.title)
-                ]
-              ),
-              createElement("div", {
-                class: "drawer-vertical item-detail-drawer",
-                "data-item-id": item.id,
-              })
-            ]
-          );
-        }),
-        // Completed Tasks Trigger
-        ...(completedItems.length > 0 ? [
-          createElement("li", { class: "item-wrapper" }, [
-            createElement("button", {
-              class: "drawer-item-btn completed-tasks-btn",
-              "data-project-id": project.id,
-            }, `Completed Tasks (${completedItems.length})`)
-          ])
-        ] : []),
-        // Dedicated 'Add' button within the horizontal list
-        createElement("li", { class: "item-wrapper" }, [
-          createElement("button", {
-            class: "drawer-item-btn add-item-inline-btn",
-            "data-project-id": project.id,
-            "aria-label": `Add new item to ${project.title}`
-          }, "+ Add")
-        ])
+        ...activeItems.map(item => createDrawerItem(item, project.id)),
+        createCompletedTasksTrigger(project.id, completedItems.length),
+        createInlineAddItemButton(project)
       ]
     );
 
-    drawerElement.replaceChildren(detailsColumn, itemsList);
+    drawerElement.replaceChildren(createProjectDetailsColumn(project), itemsList);
 
     // Also populate the actual completed drawer (initially hidden)
-    const completedContainer = drawerElement.parentElement.querySelector(".drawer-completed");
+    const completedContainer = drawerElement.parentElement?.querySelector(".drawer-completed");
     if (completedContainer) {
       this.renderCompletedDrawer(completedItems, project.id, completedContainer);
     }
   }
 
   renderCompletedDrawer(completedItems, projectId, drawerElement) {
-    const list = createElement("ul", { class: "drawer-items-list" }, 
-      completedItems.map(item => {
-        const priorityClass = item.tier === "TODO" 
-          ? `priority-${(typeof item.priority === 'string' ? item.priority : item.priority?.priority || 'none').toLowerCase()}` 
-          : "";
-        return createElement("li", { class: "item-wrapper" }, [
-          createElement("button", {
-            class: `drawer-item-btn item-completed item-${item.tier.toLowerCase()} ${priorityClass}`,
-            "data-id": item.id,
-            "data-project-id": projectId,
-          }, [
-            createElement("span", { class: "item-title" }, item.title)
-          ]),
-          createElement("div", {
-            class: "drawer-vertical item-detail-drawer",
-            "data-item-id": item.id,
-          })
-        ]);
-      })
+    const list = createElement(
+      "ul",
+      { class: "drawer-items-list" },
+      completedItems.map(item => createDrawerItem(item, projectId, { completed: true }))
     );
     drawerElement.replaceChildren(list);
   }
 
   renderVerticalDrawer(project, drawerElement) {
-    const note = project.note ? (typeof project.note === 'string' ? project.note : project.note.note) : "";
-    const content = createElement("div", { class: "detail-content" }, [
-      createElement("div", { class: "detail-row" }, [
-        createElement("span", { class: "detail-label" }, "Description"),
-        createElement("span", { class: "detail-value" }, project.description || "No description provided.")
-      ]),
-      createElement("div", { class: "detail-row" }, [
-        createElement("span", { class: "detail-label" }, "Due Date"),
-        createElement("span", { class: "detail-value" }, project.dueDateTime ? new Date(project.dueDateTime.date).toLocaleString() : "No due date.")
-      ]),
-      createElement("div", { class: "detail-row" }, [
-        createElement("span", { class: "detail-label" }, "Note"),
-        createElement("span", { class: "detail-value" }, note || "No notes.")
-      ]),
-      createElement("button", { 
-        class: "add-item-btn", 
-        "data-project-id": project.id 
-      }, "+ Add Todo or Checklist"),
-      createElement("div", { class: "drawer-actions" }, [
-        createElement("button", { 
-          class: "edit-project-btn", 
-          "data-id": project.id 
-        }, "Edit"),
-        createElement("button", { 
-          class: "delete-project-btn", 
-          "data-id": project.id 
-        }, "Delete")
-      ])
-    ]);
-
-    drawerElement.replaceChildren(content);
+    drawerElement.replaceChildren(createProjectVerticalContent(project));
   }
 
   renderItemDetailDrawer(item, drawerElement, projectId, shouldToggle = true) {
-    const getNoteText = (obj) => {
-      if (!obj) return "";
-      return typeof obj === "string" ? obj : (obj.note || "");
-    };
-    const getPriorityText = (obj) => {
-      if (!obj) return "";
-      return typeof obj === "string" ? obj : (obj.priority || "");
-    };
-
-    const noteText = getNoteText(item.note);
-    const priorityText = getPriorityText(item.priority);
-    const isComplete = item.status === "COMPLETE";
-
-    const contentChildren = [];
-
-    // 1. Basic details (Description, Status, Due Date)
-    contentChildren.push(
-      createElement("div", { class: "detail-row" }, [
-        createElement("span", { class: "detail-label" }, "Description"),
-        createElement("span", { class: "detail-value" }, item.description || "No description provided.")
-      ]),
-      createElement("div", { class: "detail-row" }, [
-        createElement("span", { class: "detail-label" }, "Status"),
-        createElement("span", { class: "detail-value" }, item.status || "ACTIVE")
-      ]),
-      createElement("div", { class: "detail-row" }, [
-        createElement("span", { class: "detail-label" }, "Due Date"),
-        createElement("span", { class: "detail-value" }, item.dueDateTime ? new Date(item.dueDateTime.date || item.dueDateTime).toLocaleString() : "No due date.")
-      ])
-    );
-
-    // 2. Note and Priority (for Todos)
-    if (item.tier === "TODO") {
-      contentChildren.push(
-        createElement("div", { class: "detail-row" }, [
-          createElement("span", { class: "detail-label" }, "Note"),
-          createElement("span", { class: "detail-value" }, noteText || "No notes.")
-        ]),
-        createElement("div", { class: "detail-row" }, [
-          createElement("span", { class: "detail-label" }, "Priority"),
-          createElement("span", { 
-            class: `priority-tag priority-${(priorityText || 'none').toString().toLowerCase()}` 
-          }, priorityText || "NONE")
-        ])
-      );
-    }
-
-    // 3. Checklist Items and Add Button (for Checklists)
-    if (item.tier === "CHECKLIST") {
-      if (item.items && item.items.length > 0) {
-        contentChildren.push(createElement("h5", { style: "margin: 1rem 0 0.5rem 0; color: var(--text-secondary);" }, "Items"));
-        const checkItemsList = createElement("ul", { 
-          class: "check-items-list",
-          style: "list-style: none; padding: 0; margin-bottom: 1.5rem;" 
-        }, 
-          item.items.map(checkItem => 
-            createElement("li", { 
-              class: "check-item-wrapper",
-              style: "margin-bottom: 0.5rem;"
-            }, [
-              createElement("button", {
-                class: `drawer-item-btn check-item-btn ${checkItem.status === 'COMPLETE' ? 'item-completed' : ''}`,
-                "data-id": checkItem.id,
-                "data-checklist-id": item.id,
-                "data-project-id": projectId,
-                style: "width: 100%; text-align: left;"
-              }, checkItem.title),
-              createElement("div", {
-                class: "drawer-vertical item-detail-drawer check-item-detail-drawer",
-                "data-item-id": checkItem.id,
-              })
-            ])
-          )
-        );
-        contentChildren.push(checkItemsList);
-      }
-
-      contentChildren.push(
-        createElement("button", {
-          class: "add-checkitem-btn",
-          "data-checklist-id": item.id,
-          "data-project-id": projectId
-        }, "+ Add Check Item")
-      );
-    }
-
-    const actionButtons = [];
-    if (!isComplete) {
-      actionButtons.push(
-        createElement("button", {
-          class: "complete-task-btn",
-          "data-id": item.id,
-          "data-project-id": projectId,
-          "title": "Complete task"
-        }, createElement("span", { class: "material-icons" }, "check_circle"))
-      );
-    } else {
-      actionButtons.push(
-        createElement("button", {
-          class: "restore-task-btn",
-          "data-id": item.id,
-          "data-project-id": projectId,
-          "title": "Restore task"
-        }, createElement("span", { class: "material-icons" }, "settings_backup_restore"))
-      );
-    }
-    actionButtons.push(
-      createElement("button", { 
-        class: "edit-item-btn", 
-        "data-id": item.id,
-        "data-project-id": projectId,
-        "title": "Edit task"
-      }, createElement("span", { class: "material-icons" }, "edit")),
-      createElement("button", { 
-        class: "delete-item-btn", 
-        "data-id": item.id,
-        "data-project-id": projectId,
-        "title": "Delete task"
-      }, createElement("span", { class: "material-icons" }, "delete"))
-    );
-
-    contentChildren.push(createElement("div", { class: "drawer-actions" }, actionButtons));
-
-    const content = createElement("div", { class: "detail-content" }, contentChildren);
-    drawerElement.replaceChildren(content);
+    drawerElement.replaceChildren(createItemDetailContent(item, projectId));
     if (shouldToggle) {
       drawerElement.classList.toggle("open");
     }
@@ -482,10 +488,5 @@ export default class Whiteboard {
     const container = this.root.querySelector(`.project-container[data-id="${projectId}"]`);
     const verDrawer = container.querySelector(".drawer-vertical");
     verDrawer.classList.toggle("open");
-  }
-
-  closeAllDrawers(projectId) {
-    const container = this.root.querySelector(`.project-container[data-id="${projectId}"]`);
-    container.querySelectorAll(".open").forEach(el => el.classList.remove("open"));
   }
 }

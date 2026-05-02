@@ -4,6 +4,22 @@ import Project from "./objects/project.js";
 import Todo from "./objects/todo.js";
 import CheckItem from "./objects/checkItem.js";
 
+function createFindResult(project, item, parent) {
+  return { project, item, parent };
+}
+
+function findFirstLevelItem(project, itemId) {
+  const item = project.items.find(item => item.id === itemId);
+  return item ? createFindResult(project, item, project) : null;
+}
+
+function findNestedChecklistItem(project, itemId) {
+  const checklist = project.items.find(item => item.tier === "CHECKLIST"
+    && item.items?.some(child => child.id === itemId));
+  const item = checklist?.items.find(child => child.id === itemId);
+  return item ? createFindResult(project, item, checklist) : null;
+}
+
 export default class Model {
   constructor() {
     this.storage = new StorageService("todo-app-data");
@@ -52,27 +68,7 @@ export default class Model {
     const project = this.projects.find(p => p.id === projectId);
     if (!project) return null;
 
-    const firstLevelItem = project.items.find(item => item.id === itemId);
-    if (firstLevelItem) {
-      return { project, item: firstLevelItem, parent: project };
-    }
-
-    for (const parentItem of project.items) {
-      if (parentItem.tier === "CHECKLIST" && parentItem.items) {
-        const nestedItem = parentItem.items.find(item => item.id === itemId);
-        if (nestedItem) {
-          return { project, item: nestedItem, parent: parentItem };
-        }
-      }
-    }
-
-    return null;
-  }
-
-  // NOTE: perhaps one method should be should be able to set any prop
-  addProp(propName, propValue, obj) {
-    obj[propName] = propValue;
-    this.save();
+    return findFirstLevelItem(project, itemId)
+      || findNestedChecklistItem(project, itemId);
   }
 }
-// TEST

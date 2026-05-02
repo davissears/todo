@@ -13,6 +13,28 @@ describe("Model", () => {
     model = new Model();
   });
 
+  const createProject = (title = "P") => {
+    model.createProject(title);
+    return model.projects[model.projects.length - 1];
+  };
+
+  const createProjectWithTodo = (todoTitle = "T") => {
+    const project = createProject();
+    model.createChild(todoTitle, "TODO", project);
+    return { project, todo: project.items[0] };
+  };
+
+  const createProjectWithCheckItem = (
+    checklistTitle = "CL",
+    checkItemTitle = "CI",
+  ) => {
+    const project = createProject();
+    model.createChild(checklistTitle, "CHECKLIST", project);
+    const checklist = project.items[0];
+    model.createChild(checkItemTitle, "CHECKITEM", checklist);
+    return { project, checklist, checkItem: checklist.items[0] };
+  };
+
   describe("createProject", () => {
     test("adds a Project to the projects array", () => {
       model.createProject("Test");
@@ -54,40 +76,30 @@ describe("Model", () => {
 
   describe("createChild", () => {
     test("creates a Todo on the parent", () => {
-      model.createProject("P");
-      const project = model.projects[0];
-      model.createChild("My Todo", "TODO", project);
-      expect(project.items[0]).toBeInstanceOf(Todo);
-      expect(project.items[0].title).toBe("My Todo");
+      const { todo } = createProjectWithTodo("My Todo");
+      expect(todo).toBeInstanceOf(Todo);
+      expect(todo.title).toBe("My Todo");
     });
 
     test("creates a Checklist on the parent", () => {
-      model.createProject("P");
-      const project = model.projects[0];
+      const project = createProject();
       model.createChild("My Checklist", "CHECKLIST", project);
       expect(project.items[0]).toBeInstanceOf(Checklist);
     });
 
     test("creates a CheckItem on a Checklist", () => {
-      model.createProject("P");
-      const project = model.projects[0];
-      model.createChild("CL", "CHECKLIST", project);
-      const checklist = project.items[0];
-      model.createChild("CI", "CHECKITEM", checklist);
-      expect(checklist.items[0]).toBeInstanceOf(CheckItem);
-      expect(checklist.items[0].title).toBe("CI");
+      const { checkItem } = createProjectWithCheckItem();
+      expect(checkItem).toBeInstanceOf(CheckItem);
+      expect(checkItem.title).toBe("CI");
     });
 
     test("inherits groupId from parent", () => {
-      model.createProject("P");
-      const project = model.projects[0];
-      model.createChild("T", "TODO", project);
-      expect(project.items[0].groupId).toBe(project.groupId);
+      const { project, todo } = createProjectWithTodo();
+      expect(todo.groupId).toBe(project.groupId);
     });
 
     test("does NOT call save internally (controller is responsible)", () => {
-      model.createProject("P");
-      const project = model.projects[0];
+      const project = createProject();
       const saveSpy = mock(() => {});
       model.storage.save = saveSpy;
       model.createChild("T", "TODO", project);
@@ -95,9 +107,8 @@ describe("Model", () => {
     });
 
     test("does not persist without an explicit save", () => {
-      model.createProject("P");
+      const project = createProject();
       model.save();
-      const project = model.projects[0];
       model.createChild("Unsaved Item", "TODO", project);
       const fresh = new Model();
       expect(fresh.projects[0].items).toHaveLength(0);
@@ -106,10 +117,7 @@ describe("Model", () => {
 
   describe("findItem", () => {
     test("finds a first-level Todo", () => {
-      model.createProject("P");
-      const project = model.projects[0];
-      model.createChild("T", "TODO", project);
-      const todo = project.items[0];
+      const { project, todo } = createProjectWithTodo();
 
       expect(model.findItem(project.id, todo.id)).toEqual({
         project,
@@ -119,8 +127,7 @@ describe("Model", () => {
     });
 
     test("finds a first-level Checklist", () => {
-      model.createProject("P");
-      const project = model.projects[0];
+      const project = createProject();
       model.createChild("CL", "CHECKLIST", project);
       const checklist = project.items[0];
 
@@ -132,12 +139,7 @@ describe("Model", () => {
     });
 
     test("finds a nested CheckItem and returns its checklist parent", () => {
-      model.createProject("P");
-      const project = model.projects[0];
-      model.createChild("CL", "CHECKLIST", project);
-      const checklist = project.items[0];
-      model.createChild("CI", "CHECKITEM", checklist);
-      const checkItem = checklist.items[0];
+      const { project, checklist, checkItem } = createProjectWithCheckItem();
 
       expect(model.findItem(project.id, checkItem.id)).toEqual({
         project,
@@ -147,26 +149,19 @@ describe("Model", () => {
     });
 
     test("returns null for a missing project", () => {
-      model.createProject("P");
-      const project = model.projects[0];
-      model.createChild("T", "TODO", project);
-      const todo = project.items[0];
+      const { todo } = createProjectWithTodo();
 
       expect(model.findItem("not-a-real-project", todo.id)).toBeNull();
     });
 
     test("returns null for a missing item", () => {
-      model.createProject("P");
-      const project = model.projects[0];
+      const project = createProject();
 
       expect(model.findItem(project.id, "not-a-real-item")).toBeNull();
     });
 
     test("does NOT call save internally", () => {
-      model.createProject("P");
-      const project = model.projects[0];
-      model.createChild("T", "TODO", project);
-      const todo = project.items[0];
+      const { project, todo } = createProjectWithTodo();
       const saveSpy = mock(() => {});
       model.storage.save = saveSpy;
 
@@ -206,18 +201,6 @@ describe("Model", () => {
       model.createProject("Stay");
       model.deleteProject("not-a-real-id");
       expect(model.projects).toHaveLength(1);
-    });
-  });
-
-  describe("addProp", () => {
-    test("sets a property on an object and saves", () => {
-      model.createProject("P");
-      const project = model.projects[0];
-      const saveSpy = mock(() => {});
-      model.storage.save = saveSpy;
-      model.addProp("description", "new desc", project);
-      expect(project.description).toBe("new desc");
-      expect(saveSpy).toHaveBeenCalledTimes(1);
     });
   });
 
