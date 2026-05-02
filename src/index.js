@@ -28,6 +28,7 @@ class Controller {
     this.view.bindDeleteItem(this.handleDeleteItem);
     this.view.bindDeleteProject(this.handleDeleteProject);
     this.view.bindCompleteTask(this.handleCompleteTask);
+    this.view.bindRestoreTask(this.handleRestoreTask);
     this.view.bindCompleteProject(this.handleCompleteProject);
     this.view.bindRestoreProject(this.handleRestoreProject);
     this.view.bindToggleCompletedDrawer(this.handleToggleCompletedDrawer);
@@ -115,25 +116,10 @@ class Controller {
   };
 
   handleItemClick = (projectId, itemId) => {
-    const project = this.model.projects.find((p) => p.id === projectId);
-    if (!project) return;
+    const result = this.model.findItem(projectId, itemId);
+    if (!result) return;
 
-    // First tier: Todos and Checklists
-    let item = project.items.find((i) => i.id === itemId);
-
-    // Second tier: Checkitems inside Checklists
-    if (!item) {
-      for (const pItem of project.items) {
-        if (pItem.tier === "CHECKLIST" && pItem.items) {
-          item = pItem.items.find(ci => ci.id === itemId);
-          if (item) break;
-        }
-      }
-    }
-
-    if (!item) return;
-
-    this.view.openItemDetailDrawer(projectId, itemId, item);
+    this.view.openItemDetailDrawer(projectId, itemId, result.item);
   };
 
   handleDeleteItem = (projectId, itemId) => {
@@ -196,23 +182,20 @@ class Controller {
   };
 
   handleCompleteTask = (projectId, itemId) => {
-    const project = this.model.projects.find(p => p.id === projectId);
-    if (project) {
-      let item = project.items.find(i => i.id === itemId);
-      if (!item) {
-        for (const pItem of project.items) {
-          if (pItem.tier === "CHECKLIST" && pItem.items) {
-            item = pItem.items.find(ci => ci.id === itemId);
-            if (item) break;
-          }
-        }
-      }
+    const result = this.model.findItem(projectId, itemId);
+    if (result) {
+      result.item.status = "COMPLETE";
+      this.model.save();
+      this.view.updateProjectList(this.model.projects);
+    }
+  };
 
-      if (item) {
-        item.status = "COMPLETE";
-        this.model.save();
-        this.view.updateProjectList(this.model.projects);
-      }
+  handleRestoreTask = (projectId, itemId) => {
+    const result = this.model.findItem(projectId, itemId);
+    if (result) {
+      result.item.status = "ACTIVE";
+      this.model.save();
+      this.view.updateProjectList(this.model.projects);
     }
   };
 
