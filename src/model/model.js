@@ -48,6 +48,27 @@ export default class Model {
     parent.items.push(child);
   }
 
+  findItem(projectId, itemId) {
+    const project = this.projects.find(p => p.id === projectId);
+    if (!project) return null;
+
+    const firstLevelItem = project.items.find(item => item.id === itemId);
+    if (firstLevelItem) {
+      return { project, item: firstLevelItem, parent: project };
+    }
+
+    for (const parentItem of project.items) {
+      if (parentItem.tier === "CHECKLIST" && parentItem.items) {
+        const nestedItem = parentItem.items.find(item => item.id === itemId);
+        if (nestedItem) {
+          return { project, item: nestedItem, parent: parentItem };
+        }
+      }
+    }
+
+    return null;
+  }
+
   // NOTE: perhaps one method should be should be able to set any prop
   addProp(propName, propValue, obj) {
     obj[propName] = propValue;
