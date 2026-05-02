@@ -187,6 +187,18 @@ export default class View {
     );
   }
 
+  bindRestoreTask(handler) {
+    this.layout.whiteboard.projectListContainer.addEventListener(
+      "click",
+      (event) => {
+        const btn = event.target.closest(".restore-task-btn");
+        if (btn) {
+          handler(btn.dataset.projectId, btn.dataset.id);
+        }
+      }
+    );
+  }
+
   bindToggleCompletedDrawer(handler) {
     this.layout.whiteboard.projectListContainer.addEventListener(
       "click",
