@@ -1,3 +1,5 @@
+Project-specific guidance lives in `AGENTS.md`. Use it for the current app
+architecture, commands, testing notes, and contribution conventions.
 
 Default to using Bun instead of Node.js.
 
