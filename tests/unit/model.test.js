@@ -104,6 +104,78 @@ describe("Model", () => {
     });
   });
 
+  describe("findItem", () => {
+    test("finds a first-level Todo", () => {
+      model.createProject("P");
+      const project = model.projects[0];
+      model.createChild("T", "TODO", project);
+      const todo = project.items[0];
+
+      expect(model.findItem(project.id, todo.id)).toEqual({
+        project,
+        item: todo,
+        parent: project,
+      });
+    });
+
+    test("finds a first-level Checklist", () => {
+      model.createProject("P");
+      const project = model.projects[0];
+      model.createChild("CL", "CHECKLIST", project);
+      const checklist = project.items[0];
+
+      expect(model.findItem(project.id, checklist.id)).toEqual({
+        project,
+        item: checklist,
+        parent: project,
+      });
+    });
+
+    test("finds a nested CheckItem and returns its checklist parent", () => {
+      model.createProject("P");
+      const project = model.projects[0];
+      model.createChild("CL", "CHECKLIST", project);
+      const checklist = project.items[0];
+      model.createChild("CI", "CHECKITEM", checklist);
+      const checkItem = checklist.items[0];
+
+      expect(model.findItem(project.id, checkItem.id)).toEqual({
+        project,
+        item: checkItem,
+        parent: checklist,
+      });
+    });
+
+    test("returns null for a missing project", () => {
+      model.createProject("P");
+      const project = model.projects[0];
+      model.createChild("T", "TODO", project);
+      const todo = project.items[0];
+
+      expect(model.findItem("not-a-real-project", todo.id)).toBeNull();
+    });
+
+    test("returns null for a missing item", () => {
+      model.createProject("P");
+      const project = model.projects[0];
+
+      expect(model.findItem(project.id, "not-a-real-item")).toBeNull();
+    });
+
+    test("does NOT call save internally", () => {
+      model.createProject("P");
+      const project = model.projects[0];
+      model.createChild("T", "TODO", project);
+      const todo = project.items[0];
+      const saveSpy = mock(() => {});
+      model.storage.save = saveSpy;
+
+      model.findItem(project.id, todo.id);
+
+      expect(saveSpy).not.toHaveBeenCalled();
+    });
+  });
+
   describe("deleteProject", () => {
     test("removes the project from the array", () => {
       model.createProject("Delete Me");
