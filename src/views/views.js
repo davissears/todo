@@ -2,6 +2,22 @@ import Layout from "./layout.js";
 import Modal from "./components/projectForm.js";
 import ItemModal from "./components/itemModal.js";
 
+function isDrawerClick(event) {
+  return event.target.closest(".drawer-horizontal")
+    || event.target.closest(".drawer-vertical");
+}
+
+function isSelectableItemButton(btn) {
+  return !btn.classList.contains("add-item-inline-btn")
+    && !btn.classList.contains("completed-tasks-btn");
+}
+
+function toggleExpandedItem(btn) {
+  const wrapper = btn.closest(".item-wrapper, .check-item-wrapper");
+  if (wrapper) wrapper.classList.toggle("expanded");
+  btn.classList.toggle("expanded");
+}
+
 export default class View {
   constructor(rootElement) {
     if (!rootElement) {
@@ -17,61 +33,167 @@ export default class View {
     this.itemForm = new ItemModal(this.root);
   }
 
-  // binds the "new project" button click to show the modal.
-  bindCreateProject(handler) {
-    this.layout.sidebar.addProjectButton.addEventListener("click", handler);
+  bindActions(actions) {
+    this.bindStaticActions(actions);
+    this.bindFormActions(actions);
+    this.bindWhiteboardActions(actions);
+    this.bindSidebarActions(actions);
   }
 
-  bindThemeToggle(handler) {
-    this.layout.header.themeToggleBtn.addEventListener("click", handler);
+  bindStaticActions(actions) {
+    this.bindElementAction(this.layout.sidebar.addProjectButton, "click", actions.showProjectForm);
+    this.bindElementAction(this.layout.header.themeToggleBtn, "click", actions.toggleTheme);
+    this.bindElementAction(this.layout.header.sidebarToggleBtn, "click", actions.toggleSidebar);
   }
 
-  bindSidebarToggle(handler) {
-    this.layout.header.sidebarToggleBtn.addEventListener("click", handler);
+  bindFormActions(actions) {
+    if (actions.submitProjectForm) {
+      this.projectForm.bindSubmitProject(actions.submitProjectForm);
+    }
+    if (actions.submitItemForm) {
+      this.itemForm.bindSubmit(actions.submitItemForm);
+    }
   }
 
-  // binds the actual form submission to a data handler.
-  bindAddProject(handler) {
-    this.projectForm.bindSubmitProject(handler);
-  }
-
-  bindAddItem(handler) {
-    this.itemForm.bindSubmit(handler);
-  }
-
-  bindProjectListClick(selector, handler, getArgs = (target) => [target]) {
-    this.layout.whiteboard.projectListContainer.addEventListener(
+  bindWhiteboardActions(actions) {
+    this.bindDelegatedActions(
+      this.layout.whiteboard.projectListContainer,
       "click",
-      (event) => {
-        const target = event.target.closest(selector);
-        if (target && this.layout.whiteboard.projectListContainer.contains(target)) {
-          const args = getArgs(target, event);
-          if (args) {
-            handler(...args);
-          }
-        }
+      [
+        {
+          selector: ".add-item-btn, .add-item-inline-btn",
+          handler: actions.addItem,
+          getArgs: (btn) => [btn.dataset.projectId],
+        },
+        {
+          selector: ".add-checkitem-btn",
+          handler: actions.addCheckItem,
+          getArgs: (btn) => [btn.dataset.projectId, btn.dataset.checklistId],
+        },
+        {
+          selector: ".completed-tasks-btn",
+          handler: actions.toggleCompletedTasks,
+          getArgs: (btn) => [btn.dataset.projectId],
+        },
+        {
+          selector: ".complete-task-btn",
+          handler: actions.completeItem,
+          getArgs: (btn) => [btn.dataset.projectId, btn.dataset.id],
+        },
+        {
+          selector: ".restore-task-btn",
+          handler: actions.restoreItem,
+          getArgs: (btn) => [btn.dataset.projectId, btn.dataset.id],
+        },
+        {
+          selector: ".edit-item-btn",
+          handler: actions.editItem,
+          getArgs: (btn) => [btn.dataset.projectId, btn.dataset.id],
+        },
+        {
+          selector: ".delete-item-btn",
+          handler: actions.deleteItem,
+          getArgs: (btn) => [btn.dataset.projectId, btn.dataset.id],
+        },
+        {
+          selector: ".complete-project-btn",
+          handler: actions.completeProject,
+          getArgs: (btn) => [btn.dataset.id],
+        },
+        {
+          selector: ".edit-project-btn",
+          handler: actions.editProject,
+          getArgs: (btn) => [btn.dataset.id],
+        },
+        {
+          selector: ".delete-project-btn",
+          handler: actions.deleteProject,
+          getArgs: (btn) => [btn.dataset.id],
+        },
+        {
+          selector: ".drawer-item-btn",
+          handler: actions.selectItem,
+          getArgs: (btn) => {
+            if (!isSelectableItemButton(btn)) return null;
+
+            toggleExpandedItem(btn);
+            return [btn.dataset.projectId, btn.dataset.id];
+          },
+        },
+        {
+          selector: ".project-header",
+          handler: actions.selectProject,
+          getArgs: (header, event) => (
+            isDrawerClick(event) ? null : [event, header.dataset.id]
+          ),
+        },
+      ]
+    );
+
+    this.bindDelegatedActions(
+      this.layout.whiteboard.projectListContainer,
+      "dblclick",
+      [
+        {
+          selector: ".project-header",
+          handler: actions.openProjectDetails,
+          getArgs: (header, event) => [event, header.dataset.id],
+        },
+      ]
+    );
+  }
+
+  bindSidebarActions(actions) {
+    this.bindDelegatedActions(
+      this.layout.sidebar.completedProjectsContainer,
+      "click",
+      [
+        {
+          selector: ".completed-projects-btn",
+          handler: actions.toggleCompletedProjects,
+        },
+      ]
+    );
+
+    this.bindDelegatedActions(
+      this.layout.sidebar.completedProjectsDrawer,
+      "click",
+      [
+        {
+          selector: ".restore-project-btn",
+          handler: actions.restoreProject,
+          getArgs: (btn) => [btn.dataset.id],
+        },
+        {
+          selector: ".delete-project-btn",
+          handler: actions.deleteProject,
+          getArgs: (btn) => [btn.dataset.id],
+        },
+      ]
+    );
+  }
+
+  bindDelegatedActions(container, eventType, routes) {
+    const activeRoutes = routes.filter(route => route.handler);
+
+    container.addEventListener(eventType, (event) => {
+      const route = activeRoutes.find(({ selector }) => event.target.closest(selector));
+      if (!route) return;
+
+      const target = event.target.closest(route.selector);
+      if (!target || !container.contains(target)) return;
+
+      const args = route.getArgs ? route.getArgs(target, event) : [];
+      if (args) {
+        route.handler(...args);
       }
-    );
+    });
   }
 
-  bindAddCheckItemButton(handler) {
-    this.bindProjectListClick(
-      ".add-checkitem-btn",
-      handler,
-      (btn) => [btn.dataset.projectId, btn.dataset.checklistId]
-    );
-  }
-
-  bindEditProject(handler) {
-    this.bindProjectListClick(".edit-project-btn", handler, (btn) => [btn.dataset.id]);
-  }
-
-  bindEditItem(handler) {
-    this.bindProjectListClick(
-      ".edit-item-btn",
-      handler,
-      (btn) => [btn.dataset.projectId, btn.dataset.id]
-    );
+  bindElementAction(element, eventType, handler) {
+    if (handler) {
+      element.addEventListener(eventType, handler);
+    }
   }
 
   showModal(data = null) {
@@ -93,63 +215,6 @@ export default class View {
     this.layout.sidebar.updateCompletedProjects(completedProjects);
   }
 
-  bindToggleCompletedProjects(handler) {
-    this.layout.sidebar.completedProjectsContainer.addEventListener("click", (event) => {
-      const btn = event.target.closest(".completed-projects-btn");
-      if (btn) {
-        handler();
-      }
-    });
-  }
-
-  // this method allows the controller to trigger the second-tier disclosure.
-  // it commands the whiteboard to open a project's horizontal drawer.
-  bindProjectButton(handler) {
-    this.bindProjectListClick(
-      ".project-header",
-      handler,
-      (header, event) => {
-        const isButtonInDrawer = event.target.closest(".drawer-horizontal")
-          || event.target.closest(".drawer-vertical");
-        return isButtonInDrawer ? null : [event, header.dataset.id];
-      }
-    );
-  }
-
-
-  bindProjectDoubleClick(handler) {
-    this.layout.whiteboard.projectListContainer.addEventListener(
-      "dblclick",
-      (event) => {
-        const header = event.target.closest(".project-header");
-        if (header) {
-          handler(event, header.dataset.id);
-        }
-      }
-    );
-  }
-
-  bindAddItemButton(handler) {
-    this.bindProjectListClick(".add-item-btn, .add-item-inline-btn", handler, (btn) => [btn.dataset.projectId]);
-  }
-
-  bindItemClick(handler) {
-    this.bindProjectListClick(
-      ".drawer-item-btn",
-      handler,
-      (btn) => {
-        if (btn.classList.contains("add-item-inline-btn") || btn.classList.contains("completed-tasks-btn")) {
-          return null;
-        }
-
-        const wrapper = btn.closest(".item-wrapper, .check-item-wrapper");
-        if (wrapper) wrapper.classList.toggle("expanded");
-        btn.classList.toggle("expanded");
-        return [btn.dataset.projectId, btn.dataset.id];
-      }
-    );
-  }
-
   toggleHorizontalDrawer(projectId) {
     this.layout.whiteboard.toggleHorizontalDrawer(projectId);
   }
@@ -164,61 +229,11 @@ export default class View {
     this.layout.whiteboard.renderItemDetailDrawer(item, drawer, projectId);
   }
 
-  bindCompleteTask(handler) {
-    this.bindProjectListClick(
-      ".complete-task-btn",
-      handler,
-      (btn) => [btn.dataset.projectId, btn.dataset.id]
-    );
-  }
-
-  bindRestoreTask(handler) {
-    this.bindProjectListClick(
-      ".restore-task-btn",
-      handler,
-      (btn) => [btn.dataset.projectId, btn.dataset.id]
-    );
-  }
-
-  bindToggleCompletedDrawer(handler) {
-    this.bindProjectListClick(".completed-tasks-btn", handler, (btn) => [btn.dataset.projectId]);
-  }
-
   toggleCompletedDrawer(projectId) {
     this.layout.whiteboard.toggleCompletedDrawer(projectId);
   }
 
   toggleCompletedProjectsDrawer() {
     this.layout.sidebar.toggleCompletedDrawer();
-  }
-
-  bindCompleteProject(handler) {
-    this.bindProjectListClick(".complete-project-btn", handler, (btn) => [btn.dataset.id]);
-  }
-
-  bindRestoreProject(handler) {
-    this.bindCompletedProjectAction(".restore-project-btn", handler);
-  }
-
-  bindCompletedProjectAction(selector, handler) {
-    this.layout.sidebar.completedProjectsDrawer.addEventListener("click", (event) => {
-      const btn = event.target.closest(selector);
-      if (btn) {
-        handler(btn.dataset.id);
-      }
-    });
-  }
-
-  bindDeleteItem(handler) {
-    this.bindProjectListClick(
-      ".delete-item-btn",
-      handler,
-      (btn) => [btn.dataset.projectId, btn.dataset.id]
-    );
-  }
-
-  bindDeleteProject(handler) {
-    this.bindProjectListClick(".delete-project-btn", handler, (btn) => [btn.dataset.id]);
-    this.bindCompletedProjectAction(".delete-project-btn", handler);
   }
 }

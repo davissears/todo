@@ -22,29 +22,29 @@ class Controller {
     // the stable shell already created by the view's layout.
     this.init();
 
-    // wiring up the user actions.
-    this.view.bindCreateProject(this.handleShowModal);
-    this.view.bindAddProject(this.handleAddProject);
-    this.view.bindAddItem(this.handleAddItemSubmit);
-
-    // new whiteboard interactions
-    this.view.bindProjectButton(this.handleProjectClick);
-    this.view.bindProjectDoubleClick(this.handleProjectDoubleClick);
-    this.view.bindAddItemButton(this.handleAddItem);
-    this.view.bindAddCheckItemButton(this.handleOpenCheckItemModal);
-    this.view.bindItemClick(this.handleItemClick);
-    this.view.bindDeleteItem(this.handleDeleteItem);
-    this.view.bindDeleteProject(this.handleDeleteProject);
-    this.view.bindCompleteTask(this.handleCompleteTask);
-    this.view.bindRestoreTask(this.handleRestoreTask);
-    this.view.bindCompleteProject(this.handleCompleteProject);
-    this.view.bindRestoreProject(this.handleRestoreProject);
-    this.view.bindToggleCompletedDrawer(this.handleToggleCompletedDrawer);
-    this.view.bindToggleCompletedProjects(this.handleToggleCompletedProjects);
-    this.view.bindEditProject(this.handleEditProject);
-    this.view.bindEditItem(this.handleEditItem);
-    this.view.bindThemeToggle(this.handleThemeToggle);
-    this.view.bindSidebarToggle(this.handleSidebarToggle);
+    // 
+    this.view.bindActions({
+      showProjectForm: this.handleShowModal,
+      submitProjectForm: this.handleAddProject,
+      submitItemForm: this.handleAddItemSubmit,
+      selectProject: this.handleProjectClick,
+      openProjectDetails: this.handleProjectDoubleClick,
+      addItem: this.handleAddItem,
+      addCheckItem: this.handleOpenCheckItemModal,
+      selectItem: this.handleItemClick,
+      deleteItem: this.handleDeleteItem,
+      deleteProject: this.handleDeleteProject,
+      completeItem: this.handleCompleteTask,
+      restoreItem: this.handleRestoreTask,
+      completeProject: this.handleCompleteProject,
+      restoreProject: this.handleRestoreProject,
+      toggleCompletedTasks: this.handleToggleCompletedDrawer,
+      toggleCompletedProjects: this.handleToggleCompletedProjects,
+      editProject: this.handleEditProject,
+      editItem: this.handleEditItem,
+      toggleTheme: this.handleThemeToggle,
+      toggleSidebar: this.handleSidebarToggle,
+    });
   }
 
   findProject(projectId) {

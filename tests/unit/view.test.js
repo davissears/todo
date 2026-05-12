@@ -22,9 +22,9 @@ describe("View", () => {
     view = new View(root);
   });
 
-  test("bindDeleteProject handles completed-project sidebar delete clicks", () => {
+  test("bindActions handles completed-project sidebar delete clicks", () => {
     const handler = mock(() => {});
-    view.bindDeleteProject(handler);
+    view.bindActions({ deleteProject: handler });
     view.updateProjectList([createCompletedProject()]);
 
     view.layout.sidebar.completedProjectsDrawer
@@ -34,9 +34,9 @@ describe("View", () => {
     expect(handler).toHaveBeenCalledWith("completed-project-id");
   });
 
-  test("bindRestoreProject handles completed-project sidebar restore clicks", () => {
+  test("bindActions handles completed-project sidebar restore clicks", () => {
     const handler = mock(() => {});
-    view.bindRestoreProject(handler);
+    view.bindActions({ restoreProject: handler });
     view.updateProjectList([createCompletedProject()]);
 
     view.layout.sidebar.completedProjectsDrawer
